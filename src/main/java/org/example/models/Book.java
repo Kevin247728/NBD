@@ -1,15 +1,20 @@
 package org.example.models;
 
+import org.example.exceptions.UnavailableException;
+
+import java.util.ArrayList;
+import java.util.List;
+
 public class Book {
     private int id;
     private String title;
     private boolean isRented = false;
-    private Author author;
+    private List<Author> authors = new ArrayList<>();
 
-    public Book(int id, String title, Author author) {
+    public Book(int id, String title, List<Author> authors) {
         this.id = id;
         this.title = title;
-        this.author = author;
+        this.authors = authors;
     }
 
     public int getId() {
@@ -20,8 +25,8 @@ public class Book {
         return title;
     }
 
-    public Author getAuthor() {
-        return author;
+    public List<Author> getAuthor() {
+        return authors;
     }
 
     public boolean isRented() {

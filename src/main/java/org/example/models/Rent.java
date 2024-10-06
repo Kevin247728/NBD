@@ -13,7 +13,7 @@ public class Rent {
     private Book book;
     private float fee;
 
-    public Rent(int id, Client client, Book book, Date beginDate, float fee) throws UnavailableException, TooManyException, TooManyException {
+    public Rent(int id, Client client, Book book, Date beginDate, float fee) throws UnavailableException, TooManyException {
         this.id = id;
         this.client = client;
         this.book = book;
