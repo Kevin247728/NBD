@@ -1,6 +1,7 @@
 package org.example.models;
 
 import org.example.exceptions.TooManyException;
+import org.example.exceptions.UnavailableException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,9 +46,6 @@ public class Client {
     }
 
     public void addRent(Rent rent) throws TooManyException {
-        if (rents.size() >= clientType.getMaxBooks()) {
-            throw new TooManyException("Max number of rents exceeded");
-        }
         rents.add(rent);
         bookCount++;
     }

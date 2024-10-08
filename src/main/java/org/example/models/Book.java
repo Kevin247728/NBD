@@ -34,13 +34,13 @@ public class Book {
     }
 
     public void rentBook() throws UnavailableException {
-        if (isRented) {
-            throw new UnavailableException("Book is already rented");
-        }
         isRented = true;
     }
 
     public void returnBook() {
+        if (!isRented) {
+            throw new IllegalStateException("Books is not rented");
+        }
         isRented = false;
     }
 }

@@ -3,8 +3,8 @@ package org.example.models;
 public class NonStudent extends ClientType {
     private float additionalFee;
 
-    public NonStudent(int maxRentDays, float additionalFee) {
-        super(2, maxRentDays); // NonStudent mogą wypożyczać maksymalnie 2 książki
+    public NonStudent(float additionalFee) {
+        super(2, 15);
         this.additionalFee = additionalFee;
     }
 
