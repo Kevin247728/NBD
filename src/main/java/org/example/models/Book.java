@@ -38,9 +38,6 @@ public class Book {
     }
 
     public void returnBook() {
-        if (!isRented) {
-            throw new IllegalStateException("Books is not rented");
-        }
         isRented = false;
     }
 }

@@ -26,7 +26,9 @@ public class Rent {
         this.fee = fee;
     }
 
-    public void returnBook() {
+    public void returnBook() throws IllegalStateException {
+        checkReturnConditions(book);
+        
         book.returnBook();
         client.removeRent(this);
     }
@@ -49,6 +51,12 @@ public class Rent {
 
     public Book getBook() {
         return book;
+    }
+
+    private void checkReturnConditions(Book book) throws IllegalStateException {
+        if (!book.isRented()) {
+            throw new IllegalStateException("Book is not rented");
+        }
     }
 
     private void checkRentConditions(Client client, Book book) throws UnavailableException, TooManyException {
