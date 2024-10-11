@@ -1,6 +1,16 @@
 package org.example.models;
 
+
+import jakarta.persistence.*;
+
+@Entity
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
+@DiscriminatorColumn(name = "client_type")
+@Access(AccessType.FIELD)
 public abstract class ClientType {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private int maxBooks;
     private int maxRentDays;
 

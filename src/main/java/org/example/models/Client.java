@@ -1,16 +1,25 @@
 package org.example.models;
 
+import jakarta.persistence.*;
 import org.example.exceptions.TooManyException;
 import org.example.exceptions.UnavailableException;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@Entity
 public class Client {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String firstName;
     private String lastName;
     private int clientID;
+
+    @ManyToOne
     private ClientType clientType;
+
+    @OneToMany(mappedBy = "client")
     private List<Rent> rents = new ArrayList<>();
     private int bookCount;
 

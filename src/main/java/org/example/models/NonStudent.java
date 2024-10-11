@@ -1,5 +1,10 @@
 package org.example.models;
 
+
+import jakarta.persistence.*;
+
+@Entity
+@DiscriminatorValue("NONSTUDENT")
 public class NonStudent extends ClientType {
     private float additionalFee;
 

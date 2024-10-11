@@ -1,6 +1,13 @@
 package org.example.models;
 
+
+import jakarta.persistence.*;
+
+@Entity
 public class Author {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int authorID;
     private String name;
     private String surname;

@@ -1,15 +1,24 @@
 package org.example.models;
 
+import jakarta.persistence.*;
 import org.example.exceptions.TooManyException;
 import org.example.exceptions.UnavailableException;
 
 import java.util.Date;
 
+@Entity
 public class Rent {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private Date beginDate;
     private Date endDate;
+
+    @ManyToOne
     private Client client;
+
+    @ManyToOne
     private Book book;
     private float fee;
 
