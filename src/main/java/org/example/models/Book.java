@@ -3,8 +3,8 @@ package org.example.models;
 import jakarta.persistence.*;
 import org.example.exceptions.UnavailableException;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 public class Book {
@@ -15,18 +15,21 @@ public class Book {
     private String title;
     private boolean isRented = false;
 
+    @ManyToMany
     @JoinTable(
-            name = "book_authors",
+            name = "book_author",
             joinColumns = @JoinColumn(name = "book_id"),
             inverseJoinColumns = @JoinColumn(name = "author_id")
     )
-    private List<Author> authors = new ArrayList<>();
+    private Set<Author> authors = new HashSet<>();
 
-    public Book(int id, String title, List<Author> authors) {
+    public Book(int id, String title, HashSet<Author> authors) {
         this.id = id;
         this.title = title;
         this.authors = authors;
     }
+
+    public Book() {}
 
     public int getId() {
         return id;
@@ -36,7 +39,7 @@ public class Book {
         return title;
     }
 
-    public List<Author> getAuthor() {
+    public Set<Author> getAuthor() {
         return authors;
     }
 

@@ -16,9 +16,11 @@ public class Rent {
     private Date endDate;
 
     @ManyToOne
+    @JoinColumn(name = "client_id")
     private Client client;
 
     @ManyToOne
+    @JoinColumn(name = "book_id")
     private Book book;
     private float fee;
 
@@ -34,6 +36,8 @@ public class Rent {
         this.beginDate = beginDate;
         this.fee = fee;
     }
+
+    public Rent() {}
 
     public void returnBook() throws IllegalStateException {
         checkReturnConditions(book);

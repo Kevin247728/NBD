@@ -13,6 +13,8 @@ public class NonStudent extends ClientType {
         this.additionalFee = additionalFee;
     }
 
+    public NonStudent() {}
+
     public float getAdditionalFee() {
         return additionalFee;
     }
