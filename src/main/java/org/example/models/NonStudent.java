@@ -6,14 +6,11 @@ import jakarta.persistence.*;
 @Entity
 @DiscriminatorValue("NONSTUDENT")
 public class NonStudent extends ClientType {
-    private float additionalFee;
+    private float additionalFee = 5;
 
-    public NonStudent(float additionalFee) {
+    public NonStudent() {
         super(2, 15);
-        this.additionalFee = additionalFee;
     }
-
-    public NonStudent() {}
 
     public float getAdditionalFee() {
         return additionalFee;

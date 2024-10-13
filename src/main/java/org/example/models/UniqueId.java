@@ -8,19 +8,5 @@ public class UniqueId {
 
     private UUID id;
 
-    public UniqueId() {
-        this.id = UUID.randomUUID();
-    }
-
-    public UniqueId(UUID id) {
-        this.id = id;
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
+    public UniqueId() {}
 }

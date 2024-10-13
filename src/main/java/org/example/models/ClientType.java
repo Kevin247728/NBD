@@ -1,21 +1,24 @@
 package org.example.models;
 
 
+import com.sun.istack.NotNull;
 import jakarta.persistence.*;
 
 @Entity
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 @DiscriminatorColumn(name = "client_type")
-public abstract class ClientType {
+public abstract class ClientType extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-
+    @NotNull
     private int maxBooks;
+
+    @NotNull
     private int maxRentDays;
 
-    public ClientType(int maxBooks, int maxRentDays) {}
+    public ClientType(int maxBooks, int maxRentDays) {
+        this.maxBooks = maxBooks;
+        this.maxRentDays = maxRentDays;
+    }
 
     public ClientType() {}
 

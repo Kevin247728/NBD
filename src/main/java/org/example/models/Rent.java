@@ -2,47 +2,57 @@ package org.example.models;
 
 import jakarta.persistence.*;
 import org.example.exceptions.TooManyException;
-import org.example.exceptions.UnavailableException;
 
-import java.util.Date;
+import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 @Entity
-public class Rent {
+public class Rent extends AbstractEntity {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private Date beginDate;
-    private Date endDate;
+    private LocalDate beginDate;
+    private LocalDate endDate;
 
     @ManyToOne
-    @JoinColumn(name = "client_id")
+    @JoinColumn(name = "client_id", nullable = false)
     private Client client;
 
     @ManyToOne
-    @JoinColumn(name = "book_id")
+    @JoinColumn(name = "book_id", nullable = false)
     private Book book;
-    private float fee;
+    private float fee = 0;
 
-    public Rent(int id, Client client, Book book, Date beginDate, float fee) throws UnavailableException, TooManyException {
-        checkRentConditions(client, book);
-
-        book.rentBook();
-        client.addRent(this);
-
-        this.id = id;
+    public Rent(Client client, Book book, LocalDate beginDate, LocalDate endDate) throws TooManyException {
         this.client = client;
         this.book = book;
         this.beginDate = beginDate;
-        this.fee = fee;
+        this.endDate = endDate;
+
+        validateRent();
+        calculateFee();
+        client.addRent(this);
     }
 
     public Rent() {}
 
-    public void returnBook() throws IllegalStateException {
-        checkReturnConditions(book);
-        
-        book.returnBook();
+
+    private void validateRent() throws TooManyException {
+        if (client.getBookCount() >= client.getClientType().getMaxBooks()) {
+            throw new TooManyException("Client has already rented the maximum number of books.");
+        }
+
+        long rentDays = ChronoUnit.DAYS.between(beginDate, endDate);
+        if (rentDays > client.getClientType().getMaxRentDays()) {
+            throw new TooManyException("Rent duration exceeds the maximum allowed days for this client type.");
+        }
+    }
+
+    private void calculateFee() {
+        if (client.getClientType() instanceof NonStudent) {
+            this.fee = ((NonStudent) client.getClientType()).getAdditionalFee();
+        }
+    }
+
+    public void returnBook() {
         client.removeRent(this);
     }
 
@@ -50,11 +60,11 @@ public class Rent {
         return fee;
     }
 
-    public Date getBeginDate() {
+    public LocalDate getBeginDate() {
         return beginDate;
     }
 
-    public Date getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
@@ -64,22 +74,6 @@ public class Rent {
 
     public Book getBook() {
         return book;
-    }
-
-    private void checkReturnConditions(Book book) throws IllegalStateException {
-        if (!book.isRented()) {
-            throw new IllegalStateException("Book is not rented");
-        }
-    }
-
-    private void checkRentConditions(Client client, Book book) throws UnavailableException, TooManyException {
-        if (book.isRented()) {
-            throw new UnavailableException("The book is already rented.");
-        }
-
-        if (client.getRents().size() >= client.getClientType().getMaxBooks()) {
-            throw new TooManyException("Client cannot rent more books.");
-        }
     }
 }
 

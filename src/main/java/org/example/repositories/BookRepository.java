@@ -1,0 +1,68 @@
+package org.example.repositories;
+
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.LockModeType;
+import org.example.models.Book;
+
+import java.util.List;
+
+public class BookRepository implements IBookRepository {
+
+    private EntityManager entityManager;
+
+    public BookRepository(EntityManager entityManager) {
+        this.entityManager = entityManager;
+    }
+
+    @Override
+    public Book findById(Long id) {
+        return entityManager.find(Book.class, id);
+    }
+
+    @Override
+    public List<Book> findAll() {
+        return entityManager.createQuery("SELECT b FROM Book b", Book.class).getResultList();
+    }
+
+    @Override
+    public void save(Book book) {
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+            if (book.getEntityId() == null) {
+                entityManager.persist(book);
+            } else {
+                entityManager.lock(book, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+                entityManager.merge(book);
+            }
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
+    }
+
+    @Override
+    public void delete(Book book) {
+        EntityTransaction transaction = entityManager.getTransaction();
+        try {
+            transaction.begin();
+
+            Book existingBook = entityManager.find(Book.class, book.getEntityId());
+            if (existingBook == null) {
+                throw new IllegalArgumentException("Book with ID " + book.getEntityId() + " does not exist.");
+            }
+
+            entityManager.remove(book);
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            throw e;
+        }
+    }
+}

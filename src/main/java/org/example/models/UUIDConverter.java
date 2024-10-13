@@ -1,7 +1,9 @@
 package org.example.models;
 
+import jakarta.persistence.AttributeConverter;
+import jakarta.persistence.Converter;
+
 import java.util.UUID;
-import jakarta.persistence.*;
 
 @Converter
 public class UUIDConverter implements AttributeConverter<UUID, String> {
