@@ -3,6 +3,7 @@ package org.example.repositories;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.LockModeType;
+import org.example.exceptions.BookAlreadyRentedException;
 import org.example.exceptions.TooManyException;
 import org.example.models.Book;
 import org.example.models.Client;
@@ -27,25 +28,6 @@ public class RentRepository implements IRentRepository {
     @Override
     public List<Rent> findAll() {
         return entityManager.createQuery("SELECT r FROM Rent r", Rent.class).getResultList();
-    }
-
-    @Override
-    public void save(Rent rent) {
-        EntityTransaction transaction = entityManager.getTransaction();
-        try {
-            transaction.begin();
-            if (rent.getEntityId() == null) {
-                entityManager.persist(rent);
-            } else {
-                entityManager.merge(rent);
-            }
-            transaction.commit();
-        } catch (Exception e) {
-            if (transaction.isActive()) {
-                transaction.rollback();
-            }
-            throw e;
-        }
     }
 
     @Override
@@ -78,7 +60,7 @@ public class RentRepository implements IRentRepository {
     }
 
     @Override
-    public Rent rentBook(Long clientId, Long bookId, LocalDate beginDate, LocalDate endDate) throws TooManyException {
+    public Rent save(Long clientId, Long bookId, LocalDate beginDate, LocalDate endDate) throws TooManyException, BookAlreadyRentedException {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
 
@@ -90,7 +72,15 @@ public class RentRepository implements IRentRepository {
                 throw new TooManyException("Client has already rented the maximum number of books.");
             }
 
-            Book book = entityManager.find(Book.class, bookId);
+            Book book = entityManager.find(Book.class, bookId, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+            if (book == null) {
+                throw new IllegalArgumentException("Book not found");
+            }
+
+            if (isBookCurrentlyRented(bookId)) {
+                throw new BookAlreadyRentedException("The book is already rented.");
+            }
+
             Rent rent = new Rent(client, book, beginDate, endDate);
             
             entityManager.persist(rent);
@@ -111,5 +101,14 @@ public class RentRepository implements IRentRepository {
                 .setParameter("clientId", clientId)
                 .getSingleResult()
                 .intValue();
+    }
+
+    @Override
+    public boolean isBookCurrentlyRented(Long bookId) {
+        String query = "SELECT COUNT(r) FROM Rent r WHERE r.book.entityId = :bookId AND r.endDate > CURRENT_DATE";
+        Long count = entityManager.createQuery(query, Long.class)
+                .setParameter("bookId", bookId)
+                .getSingleResult();
+        return count > 0;
     }
 }

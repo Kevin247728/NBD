@@ -11,8 +11,6 @@
     <class>org.example.models.Rent</class>
     <class>org.example.models.Student</class>
     <class>org.example.models.AbstractEntity</class>
-    <class>org.example.models.UniqueId</class>
-    <class>org.example.models.UUIDConverter</class>
     <properties>
       <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/RentDB" />
       <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />

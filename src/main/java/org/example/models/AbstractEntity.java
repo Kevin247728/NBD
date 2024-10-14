@@ -3,18 +3,20 @@ package org.example.models;
 import com.sun.istack.NotNull;
 import jakarta.persistence.*;
 
+import java.util.UUID;
+
 @MappedSuperclass
 public abstract class AbstractEntity {
 
-    @EmbeddedId
-    @AttributeOverride(name = "id", column = @Column(name = "entity_id"))
-    @NotNull
-    private UniqueId entityId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "entity_id", updatable = false, nullable = false)
+    private UUID entityId;
 
     @Version
     private long version;
 
-    public UniqueId getEntityId() {
+    public UUID getEntityId() {
         return entityId;
     }
 }

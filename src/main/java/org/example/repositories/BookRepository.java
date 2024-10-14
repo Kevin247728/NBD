@@ -1,11 +1,14 @@
 package org.example.repositories;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.LockModeType;
 import org.example.models.Book;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 public class BookRepository implements IBookRepository {
 
@@ -16,8 +19,12 @@ public class BookRepository implements IBookRepository {
     }
 
     @Override
-    public Book findById(Long id) {
-        return entityManager.find(Book.class, id);
+    public Book findById(UUID id) {
+        Book book = entityManager.find(Book.class, id);
+        if (book == null) {
+            throw new EntityNotFoundException("Book with ID " + id + " not found");
+        }
+        return book;
     }
 
     @Override
@@ -51,7 +58,7 @@ public class BookRepository implements IBookRepository {
         try {
             transaction.begin();
 
-            Book existingBook = entityManager.find(Book.class, book.getEntityId());
+            Book existingBook = entityManager.find(Book.class, book.getEntityId(), LockModeType.OPTIMISTIC_FORCE_INCREMENT);
             if (existingBook == null) {
                 throw new IllegalArgumentException("Book with ID " + book.getEntityId() + " does not exist.");
             }
