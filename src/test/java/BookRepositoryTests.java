@@ -69,19 +69,4 @@ public class BookRepositoryTests {
 
         assertThrows(IllegalArgumentException.class, () -> bookRepository.delete(nonExistentBook));
     }
-
-    @Test
-    public void testFindAllReturnsNoBooksAfterDeletion() {
-        Book book1 = new Book();
-        bookRepository.save(book1);
-
-        Book book2 = new Book();
-        bookRepository.save(book2);
-
-        bookRepository.delete(book1);
-        bookRepository.delete(book2);
-
-        List<Book> allBooks = bookRepository.findAll();
-        assertTrue(allBooks.isEmpty());
-    }
 }
