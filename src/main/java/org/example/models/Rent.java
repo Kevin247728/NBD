@@ -5,6 +5,7 @@ import org.example.exceptions.TooManyException;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
+import java.util.Objects;
 
 @Entity
 public class Rent extends AbstractEntity {
@@ -74,6 +75,22 @@ public class Rent extends AbstractEntity {
 
     public Book getBook() {
         return book;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Rent rent = (Rent) o;
+        return Objects.equals(client, rent.client) &&
+                Objects.equals(book, rent.book) &&
+                Objects.equals(beginDate, rent.beginDate) &&
+                Objects.equals(endDate, rent.endDate);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(client, book, beginDate, endDate);
     }
 }
 

@@ -6,6 +6,7 @@ import org.example.exceptions.TooManyException;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 @Entity
 public class Client extends AbstractEntity {
@@ -54,5 +55,18 @@ public class Client extends AbstractEntity {
 
     public int getBookCount() {
         return rents.size();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Client client = (Client) o;
+        return Objects.equals(getEntityId(), client.getEntityId());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getEntityId());
     }
 }
