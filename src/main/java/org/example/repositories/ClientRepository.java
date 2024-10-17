@@ -1,10 +1,14 @@
 package org.example.repositories;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.EntityTransaction;
+import jakarta.persistence.LockModeType;
 import org.example.models.Client;
+import org.example.models.ClientType;
 
 import java.util.List;
+import java.util.UUID;
 
 public class ClientRepository implements IClientRepository {
 
@@ -15,8 +19,12 @@ public class ClientRepository implements IClientRepository {
     }
 
     @Override
-    public Client findById(Long id) {
-        return entityManager.find(Client.class, id);
+    public Client findById(UUID id) {
+        Client client = entityManager.find(Client.class, id);
+        if (client == null) {
+            throw new EntityNotFoundException("Client with ID " + id + " not found");
+        }
+        return client;
     }
 
     @Override
@@ -29,9 +37,16 @@ public class ClientRepository implements IClientRepository {
         EntityTransaction transaction = entityManager.getTransaction();
         try {
             transaction.begin();
+
+            ClientType clientType = client.getClientType();
+            if (clientType.getEntityId() == null) {
+                entityManager.persist(clientType);
+            }
+
             if (client.getEntityId() == null) {
                 entityManager.persist(client);
             } else {
+                entityManager.lock(client, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
                 entityManager.merge(client);
             }
             transaction.commit();

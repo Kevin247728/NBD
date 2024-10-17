@@ -6,13 +6,14 @@ import org.example.models.Rent;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public interface IRentRepository {
-    Rent findById(Long id);
+    Rent findById(UUID id);
     List<Rent> findAll();
     void delete(Rent rent);
-    List<Rent> findByClientId(Long clientId);
-    Rent save(Long clientId, Long bookId, LocalDate beginDate, LocalDate endDate) throws TooManyException, BookAlreadyRentedException;
-    int getCurrentRentCount(Long clientId);
-    boolean isBookCurrentlyRented(Long bookId);
+    List<Rent> findByClientId(UUID clientId);
+    void save(Rent rent) throws TooManyException, BookAlreadyRentedException;
+    int getCurrentRentCount(UUID clientId);
+    boolean isBookCurrentlyRented(UUID bookId);
 }

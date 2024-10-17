@@ -1,6 +1,7 @@
 package org.example.repositories;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.persistence.EntityTransaction;
 import jakarta.persistence.LockModeType;
 import org.example.exceptions.BookAlreadyRentedException;
@@ -9,8 +10,8 @@ import org.example.models.Book;
 import org.example.models.Client;
 import org.example.models.Rent;
 
-import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 public class RentRepository implements IRentRepository {
 
@@ -21,8 +22,12 @@ public class RentRepository implements IRentRepository {
     }
 
     @Override
-    public Rent findById(Long id) {
-        return entityManager.find(Rent.class, id);
+    public Rent findById(UUID id) {
+        Rent rent = entityManager.find(Rent.class, id);
+        if (rent == null) {
+            throw new EntityNotFoundException("Rent with ID " + id + " not found");
+        }
+        return rent;
     }
 
     @Override
@@ -52,7 +57,7 @@ public class RentRepository implements IRentRepository {
     }
 
     @Override
-    public List<Rent> findByClientId(Long clientId) {
+    public List<Rent> findByClientId(UUID clientId) {
         String jpql = "SELECT r FROM Rent r WHERE r.client.id = :clientId";
         return entityManager.createQuery(jpql, Rent.class)
                 .setParameter("clientId", clientId)
@@ -60,32 +65,38 @@ public class RentRepository implements IRentRepository {
     }
 
     @Override
-    public Rent save(Long clientId, Long bookId, LocalDate beginDate, LocalDate endDate) throws TooManyException, BookAlreadyRentedException {
+    public void save(Rent rent) throws TooManyException, BookAlreadyRentedException {
         EntityTransaction transaction = entityManager.getTransaction();
         transaction.begin();
 
         try {
-            Client client = entityManager.find(Client.class, clientId, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
-            int currentRentCount = getCurrentRentCount(clientId);
+            Client client = entityManager.find(Client.class, rent.getClient().getEntityId(), LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+            if (client == null) {
+                throw new IllegalArgumentException("Client not found");
+            }
 
+            int currentRentCount = getCurrentRentCount(client.getEntityId());
             if (currentRentCount >= client.getClientType().getMaxBooks()) {
                 throw new TooManyException("Client has already rented the maximum number of books.");
             }
 
-            Book book = entityManager.find(Book.class, bookId, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+            Book book = entityManager.find(Book.class, rent.getBook().getEntityId(), LockModeType.OPTIMISTIC_FORCE_INCREMENT);
             if (book == null) {
                 throw new IllegalArgumentException("Book not found");
             }
 
-            if (isBookCurrentlyRented(bookId)) {
+            if (isBookCurrentlyRented(book.getEntityId())) {
                 throw new BookAlreadyRentedException("The book is already rented.");
             }
 
-            Rent rent = new Rent(client, book, beginDate, endDate);
-            
-            entityManager.persist(rent);
+            if (rent.getEntityId() == null) {
+                entityManager.persist(rent);
+            } else {
+                entityManager.lock(rent, LockModeType.OPTIMISTIC_FORCE_INCREMENT);
+                entityManager.merge(rent);
+            }
             transaction.commit();
-            return rent;
+
         } catch (Exception e) {
             if (transaction.isActive()) {
                 transaction.rollback();
@@ -95,7 +106,8 @@ public class RentRepository implements IRentRepository {
     }
 
     @Override
-    public int getCurrentRentCount(Long clientId) {
+    public int getCurrentRentCount(UUID clientId) {
+        entityManager.clear();
         String jpql = "SELECT COUNT(r) FROM Rent r WHERE r.client.id = :clientId";
         return entityManager.createQuery(jpql, Long.class)
                 .setParameter("clientId", clientId)
@@ -104,7 +116,8 @@ public class RentRepository implements IRentRepository {
     }
 
     @Override
-    public boolean isBookCurrentlyRented(Long bookId) {
+    public boolean isBookCurrentlyRented(UUID bookId) {
+        entityManager.clear();
         String query = "SELECT COUNT(r) FROM Rent r WHERE r.book.entityId = :bookId AND r.endDate > CURRENT_DATE";
         Long count = entityManager.createQuery(query, Long.class)
                 .setParameter("bookId", bookId)
