@@ -175,12 +175,11 @@ public class RentRepositoryTests {
 
         Rent rent = new Rent(client, book, beginDate, endDate);
         Rent rent2 = new Rent(client, book2, beginDate, endDate);
-//        Rent rent3 = new Rent(client, book3, beginDate, endDate);
 
         rentRepository.save(rent);
         rentRepository.save(rent2);
 
-//        assertThrows(TooManyException.class, () -> rentRepository.save(rent3));
+        assertThrows(TooManyException.class, () -> rentRepository.save(new Rent(client, book3, beginDate, endDate)));
     }
 
     @Test
