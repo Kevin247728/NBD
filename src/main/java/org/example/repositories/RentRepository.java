@@ -41,7 +41,7 @@ public class RentRepository implements IRentRepository {
         try {
             transaction.begin();
 
-            Rent existingRent = entityManager.find(Rent.class, rent.getEntityId());
+            Rent existingRent = entityManager.find(Rent.class, rent.getEntityId(), LockModeType.OPTIMISTIC_FORCE_INCREMENT);
             if (existingRent == null) {
                 throw new IllegalArgumentException("Rent with ID " + rent.getEntityId() + " does not exist.");
             }

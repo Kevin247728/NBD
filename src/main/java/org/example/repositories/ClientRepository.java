@@ -64,7 +64,7 @@ public class ClientRepository implements IClientRepository {
         try {
             transaction.begin();
 
-            Client existingClient = entityManager.find(Client.class, client.getEntityId());
+            Client existingClient = entityManager.find(Client.class, client.getEntityId(), LockModeType.OPTIMISTIC_FORCE_INCREMENT);
             if (existingClient == null) {
                 throw new IllegalArgumentException("Client with ID " + client.getEntityId() + " does not exist.");
             }
