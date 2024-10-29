@@ -1,26 +1,23 @@
 package org.example.models;
 
+import org.bson.codecs.pojo.annotations.BsonCreator;
+import org.bson.codecs.pojo.annotations.BsonProperty;
 
-import com.sun.istack.NotNull;
-import jakarta.persistence.*;
+public abstract class ClientType extends AbstractEntityMgd {
 
-@Entity
-@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-@DiscriminatorColumn(name = "client_type")
-public abstract class ClientType extends AbstractEntity {
-
-    @NotNull
+    @BsonProperty("maxBooks")
     private int maxBooks;
 
-    @NotNull
+    @BsonProperty("maxRentDays")
     private int maxRentDays;
 
-    public ClientType(int maxBooks, int maxRentDays) {
+    @BsonCreator
+    public ClientType(@BsonProperty("maxBooks") int maxBooks,
+                      @BsonProperty("maxRentDays") int maxRentDays) {
+        super();
         this.maxBooks = maxBooks;
         this.maxRentDays = maxRentDays;
     }
-
-    public ClientType() {}
 
     public int getMaxBooks() {
         return maxBooks;

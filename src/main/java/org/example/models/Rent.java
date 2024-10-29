@@ -1,42 +1,47 @@
 package org.example.models;
 
-import jakarta.persistence.*;
+import org.bson.codecs.pojo.annotations.BsonCreator;
+import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.example.exceptions.TooManyException;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
-import java.util.Objects;
 
-@Entity
-public class Rent extends AbstractEntity {
+public class Rent extends AbstractEntityMgd {
 
+    @BsonProperty("beginDate")
     private LocalDate beginDate;
+
+    @BsonProperty("endDate")
     private LocalDate endDate;
 
-    @ManyToOne
-    @JoinColumn(name = "client_id", nullable = false)
-    private Client client;
+    @BsonProperty("clientId")
+    private UniqueIdMgd clientId;
 
-    @ManyToOne
-    @JoinColumn(name = "book_id", nullable = false)
-    private Book book;
-    private float fee = 0;
+    @BsonProperty("bookId")
+    private UniqueIdMgd bookId;
 
-    public Rent(Client client, Book book, LocalDate beginDate, LocalDate endDate) throws TooManyException {
-        this.client = client;
-        this.book = book;
+    @BsonProperty("fee")
+    private float fee;
+
+    @BsonCreator
+    public Rent(@BsonProperty("clientId") UniqueIdMgd clientId,
+                @BsonProperty("bookId") UniqueIdMgd bookId,
+                @BsonProperty("beginDate") LocalDate beginDate,
+                @BsonProperty("endDate") LocalDate endDate) throws TooManyException {
+        super();
+        this.clientId = clientId;
+        this.bookId = bookId;
         this.beginDate = beginDate;
         this.endDate = endDate;
 
         validateRent();
         calculateFee();
-        client.addRent(this);
+        getClientById(clientId).addRent(this);
     }
 
-    public Rent() {}
-
-
     private void validateRent() throws TooManyException {
+        Client client = getClientById(clientId);
         if (client.getBookCount() >= client.getClientType().getMaxBooks()) {
             throw new TooManyException("Client has already rented the maximum number of books.");
         }
@@ -48,13 +53,19 @@ public class Rent extends AbstractEntity {
     }
 
     private void calculateFee() {
+        Client client = getClientById(clientId);
         if (client.getClientType() instanceof NonStudent) {
             this.fee = ((NonStudent) client.getClientType()).getAdditionalFee();
         }
     }
 
     public void returnBook() {
+        Client client = getClientById(clientId);
         client.removeRent(this);
+    }
+
+    private Client getClientById(UniqueIdMgd clientId) {
+        return clientRepository.findById(clientId);
     }
 
     public float getFee() {
@@ -69,28 +80,12 @@ public class Rent extends AbstractEntity {
         return endDate;
     }
 
-    public Client getClient() {
-        return client;
+    public UniqueIdMgd getClientId() {
+        return clientId;
     }
 
-    public Book getBook() {
-        return book;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Rent rent = (Rent) o;
-        return Objects.equals(client, rent.client) &&
-                Objects.equals(book, rent.book) &&
-                Objects.equals(beginDate, rent.beginDate) &&
-                Objects.equals(endDate, rent.endDate);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(client, book, beginDate, endDate);
+    public UniqueIdMgd getBookId() {
+        return bookId;
     }
 }
 

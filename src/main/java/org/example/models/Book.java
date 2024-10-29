@@ -1,39 +1,22 @@
 package org.example.models;
+import org.bson.codecs.pojo.annotations.BsonCreator;
+import org.bson.codecs.pojo.annotations.BsonProperty;
 
-import com.sun.istack.NotNull;
-import jakarta.persistence.*;
-import org.example.exceptions.UnavailableException;
 
-import java.util.Objects;
+public class Book extends AbstractEntityMgd {
 
-@Entity
-public class Book extends AbstractEntity {
-
-    @NotNull
+    @BsonProperty("title")
     private String title;
 
-    public Book(String title) {
+    @BsonCreator
+    public Book(@BsonProperty("title") String title) {
+        super();
         this.title = title;
     }
 
-    public Book() {}
 
     public String getTitle() {
         return title;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        // Cast the object to Book and compare entityId
-        Book book = (Book) o;
-        return Objects.equals(getEntityId(), book.getEntityId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getEntityId());
     }
 }
 

@@ -1,33 +1,35 @@
 package org.example.models;
 
-import com.sun.istack.NotNull;
-import jakarta.persistence.*;
-import org.example.exceptions.TooManyException;
+import org.bson.codecs.pojo.annotations.BsonCreator;
+import org.bson.codecs.pojo.annotations.BsonProperty;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
-@Entity
-public class Client extends AbstractEntity {
 
+public class Client extends AbstractEntityMgd {
+
+    @BsonProperty("firstName")
     private String firstName;
+
+    @BsonProperty("lastName")
     private String lastName;
 
-    @ManyToOne
-    @JoinColumn(name = "client_type_id", nullable = false)
+    @BsonProperty("clientType")
     private ClientType clientType;
 
-    @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, orphanRemoval = true)
+    @BsonProperty("rents")
     private List<Rent> rents = new ArrayList<>();
 
-    public Client(String firstName, String lastName, ClientType clientType) {
+    @BsonCreator
+    public Client(@BsonProperty("firstName") String firstName,
+                  @BsonProperty("lastName") String lastName,
+                  @BsonProperty("clientType") ClientType clientType) {
+        super();
         this.firstName = firstName;
         this.lastName = lastName;
         this.clientType = clientType;
     }
-
-    public Client() {}
 
     public String getFirstName() {
         return firstName;
@@ -55,18 +57,5 @@ public class Client extends AbstractEntity {
 
     public int getBookCount() {
         return rents.size();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Client client = (Client) o;
-        return Objects.equals(getEntityId(), client.getEntityId());
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(getEntityId());
     }
 }
