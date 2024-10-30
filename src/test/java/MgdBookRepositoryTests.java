@@ -5,15 +5,13 @@ import com.mongodb.client.MongoDatabase;
 import org.example.models.Book;
 import org.example.repositories.MgdBookRepository;
 import org.junit.jupiter.api.*;
-import
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class MgdBookRepositoryTest {
+public class MgdBookRepositoryTests {
 
     private MongoClient mongoClient;
     private MongoDatabase database;
@@ -22,7 +20,7 @@ public class MgdBookRepositoryTest {
     @BeforeAll
     public void setUp() {
         mongoClient = MongoClients.create(MongoClientSettings.builder()
-                .applyConnectionString(new com.mongodb.ConnectionString("mongodb://localhost:27017"))
+                .applyConnectionString(new com.mongodb.ConnectionString("mongodb://localhost:27017,localhost:27018,localhost:27019/?replicaSet=replica_set_single"))
                 .build());
         database = mongoClient.getDatabase("library");
         bookRepository = new MgdBookRepository(database);

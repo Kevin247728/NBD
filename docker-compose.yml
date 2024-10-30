@@ -1,6 +1,6 @@
 services:
   mongo_1:
-    image: mongo:7.0
+    image: mongocustom:7.0
     container_name: mongodb1
     hostname: mongodb1
     networks:
@@ -11,6 +11,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=adminpassword
       - MONGO_INITDB_DATABASE=library
+    command: --config /etc/mongod.conf --port 27017
     healthcheck:
       test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
       interval: 10s
@@ -18,7 +19,7 @@ services:
       retries: 5
 
   mongo_2:
-    image: mongo:7.0
+    image: mongocustom:7.0
     container_name: mongodb2
     hostname: mongodb2
     networks:
@@ -29,6 +30,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=adminpassword
       - MONGO_INITDB_DATABASE=library
+    command: --config /etc/mongod.conf --port 27017
     healthcheck:
       test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
       interval: 10s
@@ -36,7 +38,7 @@ services:
       retries: 5
 
   mongo_3:
-    image: mongo:7.0
+    image: mongocustom:7.0
     container_name: mongodb3
     hostname: mongodb3
     networks:
@@ -47,6 +49,7 @@ services:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=adminpassword
       - MONGO_INITDB_DATABASE=library
+    command: --config /etc/mongod.conf --port 27017
     healthcheck:
       test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
       interval: 10s
