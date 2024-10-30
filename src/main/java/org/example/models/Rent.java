@@ -3,6 +3,7 @@ package org.example.models;
 import org.bson.codecs.pojo.annotations.BsonCreator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 import org.example.exceptions.TooManyException;
+import org.example.repositories.MgdClientRepository;
 
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
@@ -24,16 +25,20 @@ public class Rent extends AbstractEntityMgd {
     @BsonProperty("fee")
     private float fee;
 
+    private MgdClientRepository clientRepository;
+
     @BsonCreator
     public Rent(@BsonProperty("clientId") UniqueIdMgd clientId,
                 @BsonProperty("bookId") UniqueIdMgd bookId,
                 @BsonProperty("beginDate") LocalDate beginDate,
-                @BsonProperty("endDate") LocalDate endDate) throws TooManyException {
+                @BsonProperty("endDate") LocalDate endDate,
+                MgdClientRepository clientRepository) throws TooManyException {
         super();
         this.clientId = clientId;
         this.bookId = bookId;
         this.beginDate = beginDate;
         this.endDate = endDate;
+        this.clientRepository = clientRepository;
 
         validateRent();
         calculateFee();
@@ -65,7 +70,7 @@ public class Rent extends AbstractEntityMgd {
     }
 
     private Client getClientById(UniqueIdMgd clientId) {
-        return MgdClientRepository.findById(clientId);
+        return clientRepository.findById(clientId);
     }
 
     public float getFee() {

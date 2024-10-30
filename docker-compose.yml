@@ -1,14 +1,86 @@
 services:
-  db:
-    image: postgres
-    restart: always
-    environment:
-      POSTGRES_DB: RentDB
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: db
+  mongo_1:
+    image: mongo:7.0
+    container_name: mongodb1
+    hostname: mongodb1
+    networks:
+      - mongonet
     ports:
-      - 5432:5432
-    volumes:
-      - pg:/var/lib/postgresql/data
-volumes:
-  pg:
+      - "27017:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
+      - MONGO_INITDB_DATABASE=library
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+
+  mongo_2:
+    image: mongo:7.0
+    container_name: mongodb2
+    hostname: mongodb2
+    networks:
+      - mongonet
+    ports:
+      - "27018:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
+      - MONGO_INITDB_DATABASE=library
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+
+  mongo_3:
+    image: mongo:7.0
+    container_name: mongodb3
+    hostname: mongodb3
+    networks:
+      - mongonet
+    ports:
+      - "27019:27017"
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
+      - MONGO_INITDB_DATABASE=library
+    healthcheck:
+      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+      interval: 10s
+      timeout: 2s
+      retries: 5
+
+  mongoinit:
+    image: mongo:7.0
+    hostname: mongodbinit
+    container_name: mongodbinit
+    networks:
+      - mongonet
+    depends_on:
+      mongo_1:
+        condition: service_healthy
+      mongo_2:
+        condition: service_healthy
+      mongo_3:
+        condition: service_healthy
+
+    command: >
+      mongosh --host mongodb1:27017 --username admin --password adminpassword --authenticationDatabase admin --eval
+      '
+      rs.initiate(
+         {
+            _id: "replica_set_single",
+            version: 1,
+            members: [
+               { _id: 0, host : "mongodb1:27017" },
+               { _id: 1, host : "mongodb1:27018" },
+               { _id: 2, host : "mongodb1:27019" }
+            ]
+         }
+      );
+      '
+networks:
+  mongonet: { }

@@ -10,6 +10,10 @@ public abstract class AbstractEntityMgd {
         this.entityId = new UniqueIdMgd();
     }
 
+    public AbstractEntityMgd(UniqueIdMgd entityId) {
+        this.entityId = entityId;
+    }
+
     public UniqueIdMgd getEntityId() {
         return entityId;
     }
