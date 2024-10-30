@@ -1,13 +1,14 @@
 package org.example.repositories;
 
 import org.example.models.Client;
+import org.example.models.UniqueIdMgd;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface ClientRepository {
-    Client findById(UUID id);
+    Client findById(UniqueIdMgd id);
     List<Client> findAll();
-    void save(Client client);
-    void delete(Client client);
+    void create(Client client);
+    boolean delete(Client client);
+    boolean update(Client client);
 }

@@ -1,13 +1,13 @@
 package org.example.repositories;
-
 import org.example.models.Book;
+import org.example.models.UniqueIdMgd;
 
 import java.util.List;
-import java.util.UUID;
 
 public interface BookRepository {
-    Book findById(UUID id);
+    Book findById(UniqueIdMgd id);
     List<Book> findAll();
-    void save(Book book);
-    void delete(Book book);
+    void create(Book book);
+    boolean delete(Book book);
+    boolean update(Book book);
 }

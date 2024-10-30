@@ -65,7 +65,7 @@ public class Rent extends AbstractEntityMgd {
     }
 
     private Client getClientById(UniqueIdMgd clientId) {
-        return clientRepository.findById(clientId);
+        return MgdClientRepository.findById(clientId);
     }
 
     public float getFee() {
