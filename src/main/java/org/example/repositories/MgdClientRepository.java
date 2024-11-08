@@ -11,12 +11,12 @@ import org.example.models.UniqueIdMgd;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MgdClientRepository implements ClientRepository {
+public class MgdClientRepository extends AbstractMongoRepository implements ClientRepository {
 
     private final MongoCollection<Client> clientCollection;
 
-    public MgdClientRepository(MongoDatabase database) {
-        this.clientCollection = database.getCollection("clients", Client.class);
+    public MgdClientRepository() {
+        this.clientCollection = mongoDatabase.getCollection("clients", Client.class);
     }
 
     @Override

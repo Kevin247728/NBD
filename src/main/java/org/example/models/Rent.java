@@ -25,6 +25,7 @@ public class Rent extends AbstractEntityMgd {
     @BsonProperty("fee")
     private float fee;
 
+    @BsonProperty("clientRepository")
     private MgdClientRepository clientRepository;
 
     @BsonCreator
@@ -32,7 +33,7 @@ public class Rent extends AbstractEntityMgd {
                 @BsonProperty("bookId") UniqueIdMgd bookId,
                 @BsonProperty("beginDate") LocalDate beginDate,
                 @BsonProperty("endDate") LocalDate endDate,
-                MgdClientRepository clientRepository) throws TooManyException {
+                @BsonProperty("clientRepository") MgdClientRepository clientRepository) throws TooManyException {
         super();
         this.clientId = clientId;
         this.bookId = bookId;
@@ -40,22 +41,22 @@ public class Rent extends AbstractEntityMgd {
         this.endDate = endDate;
         this.clientRepository = clientRepository;
 
-        validateRent();
+//        validateRent();
         calculateFee();
         getClientById(clientId).addRent(this);
     }
 
-    private void validateRent() throws TooManyException {
-        Client client = getClientById(clientId);
-        if (client.getBookCount() >= client.getClientType().getMaxBooks()) {
-            throw new TooManyException("Client has already rented the maximum number of books.");
-        }
-
-        long rentDays = ChronoUnit.DAYS.between(beginDate, endDate);
-        if (rentDays > client.getClientType().getMaxRentDays()) {
-            throw new TooManyException("Rent duration exceeds the maximum allowed days for this client type.");
-        }
-    }
+//    private void validateRent() throws TooManyException {
+//        Client client = getClientById(clientId);
+//        if (client.getBookCount() >= client.getClientType().getMaxBooks()) {
+//            throw new TooManyException("Client has already rented the maximum number of books.");
+//        }
+//
+//        long rentDays = ChronoUnit.DAYS.between(beginDate, endDate);
+//        if (rentDays > client.getClientType().getMaxRentDays()) {
+//            throw new TooManyException("Rent duration exceeds the maximum allowed days for this client type.");
+//        }
+//    }
 
     private void calculateFee() {
         Client client = getClientById(clientId);

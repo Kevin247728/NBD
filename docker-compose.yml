@@ -1,89 +1,41 @@
 services:
-  mongo_1:
-    image: mongocustom:7.0
-    container_name: mongodb1
-    hostname: mongodb1
-    networks:
-      - mongonet
+  mongo1:
+    image: mymongo:1.0
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
     ports:
       - "27017:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
-      - MONGO_INITDB_DATABASE=library
-    command: --config /etc/mongod.conf --port 27017
+    volumes:
+      - mongo1_data:/data/db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     healthcheck:
-      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
-      interval: 10s
-      timeout: 2s
-      retries: 5
+      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017',priority:1},{_id:1,host:'host.docker.internal:27018',priority:0.5},{_id:2,host:'host.docker.internal:27019',priority:0.5}]}) }" | mongosh --port 27017 --quiet
+      interval: 5s
+      timeout: 30s
+      start_period: 0s
+      retries: 30
 
-  mongo_2:
-    image: mongocustom:7.0
-    container_name: mongodb2
-    hostname: mongodb2
-    networks:
-      - mongonet
+  mongo2:
+    image: mymongo:1.0
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
     ports:
-      - "27018:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
-      - MONGO_INITDB_DATABASE=library
-    command: --config /etc/mongod.conf --port 27017
-    healthcheck:
-      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
-      interval: 10s
-      timeout: 2s
-      retries: 5
+      - "27018:27018"
+    volumes:
+      - mongo2_data:/data/db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
-  mongo_3:
-    image: mongocustom:7.0
-    container_name: mongodb3
-    hostname: mongodb3
-    networks:
-      - mongonet
+  mongo3:
+    image: mymongo:1.0
+    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
     ports:
-      - "27019:27017"
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
-      - MONGO_INITDB_DATABASE=library
-    command: --config /etc/mongod.conf --port 27017
-    healthcheck:
-      test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
-      interval: 10s
-      timeout: 2s
-      retries: 5
+      - "27019:27019"
+    volumes:
+      - mongo3_data:/data/db
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
-  mongoinit:
-    image: mongo:7.0
-    hostname: mongodbinit
-    container_name: mongodbinit
-    networks:
-      - mongonet
-    depends_on:
-      mongo_1:
-        condition: service_healthy
-      mongo_2:
-        condition: service_healthy
-      mongo_3:
-        condition: service_healthy
-
-    command: >
-      mongosh --host mongodb1:27017 --username admin --password adminpassword --authenticationDatabase admin --eval
-      '
-      rs.initiate(
-         {
-            _id: "replica_set_single",
-            version: 1,
-            members: [
-               { _id: 0, host : "mongodb1:27017" },
-               { _id: 1, host : "mongodb1:27018" },
-               { _id: 2, host : "mongodb1:27019" }
-            ]
-         }
-      );
-      '
-networks:
-  mongonet: { }
+volumes:
+  mongo1_data:
+  mongo2_data:
+  mongo3_data:

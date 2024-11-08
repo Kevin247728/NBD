@@ -1,9 +1,11 @@
 package org.example.models;
 
 import org.bson.codecs.pojo.annotations.BsonCreator;
+import org.bson.codecs.pojo.annotations.BsonDiscriminator;
 import org.bson.codecs.pojo.annotations.BsonProperty;
 
-public abstract class ClientType extends AbstractEntityMgd {
+@BsonDiscriminator(key = "type")
+public abstract class ClientType {
 
     @BsonProperty("maxBooks")
     private int maxBooks;
@@ -14,7 +16,6 @@ public abstract class ClientType extends AbstractEntityMgd {
     @BsonCreator
     public ClientType(@BsonProperty("maxBooks") int maxBooks,
                       @BsonProperty("maxRentDays") int maxRentDays) {
-        super();
         this.maxBooks = maxBooks;
         this.maxRentDays = maxRentDays;
     }
@@ -27,4 +28,5 @@ public abstract class ClientType extends AbstractEntityMgd {
         return maxRentDays;
     }
 }
+
 

@@ -1,5 +1,6 @@
 package org.example.repositories;
 
+import com.mongodb.ConnectionString;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -11,12 +12,12 @@ import org.bson.conversions.Bson;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MgdBookRepository implements BookRepository {
+public class MgdBookRepository extends AbstractMongoRepository implements BookRepository {
 
     private final MongoCollection<Book> bookCollection;
 
-    public MgdBookRepository(MongoDatabase database) {
-        this.bookCollection = database.getCollection("books", Book.class);
+    public MgdBookRepository() {
+        this.bookCollection = mongoDatabase.getCollection("books", Book.class);
     }
 
     @Override

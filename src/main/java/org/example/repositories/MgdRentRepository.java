@@ -17,16 +17,16 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MgdRentRepository implements RentRepository {
+public class MgdRentRepository extends AbstractMongoRepository implements RentRepository {
 
     private final MongoCollection<Rent> rentCollection;
     private final MongoCollection<Client> clientCollection;
     private final MongoCollection<Book> bookCollection;
 
-    public MgdRentRepository(MongoDatabase database) {
-        this.rentCollection = database.getCollection("rents", Rent.class);
-        this.clientCollection = database.getCollection("clients", Client.class);
-        this.bookCollection = database.getCollection("books", Book.class);
+    public MgdRentRepository() {
+        this.bookCollection = mongoDatabase.getCollection("books", Book.class);
+        this.clientCollection = mongoDatabase.getCollection("clients", Client.class);
+        this.rentCollection = mongoDatabase.getCollection("rents", Rent.class);
     }
 
     @Override
@@ -52,11 +52,12 @@ public class MgdRentRepository implements RentRepository {
 
         if (rent.getEntityId() == null) {
             rentCollection.insertOne(rent);
-        } else {
-            Bson filter = Filters.eq("_id", rent.getEntityId());
-            ReplaceOptions options = new ReplaceOptions().upsert(true);
-            rentCollection.replaceOne(filter, rent, options);
         }
+//        else {
+//            Bson filter = Filters.eq("_id", rent.getEntityId());
+//            ReplaceOptions options = new ReplaceOptions().upsert(true);
+//            rentCollection.replaceOne(filter, rent, options);
+//        }
     }
 
     @Override
