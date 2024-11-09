@@ -6,7 +6,6 @@ import org.example.exceptions.TooManyException;
 import org.example.repositories.MgdClientRepository;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 
 public class Rent extends AbstractEntityMgd {
 
@@ -25,53 +24,28 @@ public class Rent extends AbstractEntityMgd {
     @BsonProperty("fee")
     private float fee;
 
-    @BsonProperty("clientRepository")
-    private MgdClientRepository clientRepository;
-
     @BsonCreator
     public Rent(@BsonProperty("clientId") UniqueIdMgd clientId,
                 @BsonProperty("bookId") UniqueIdMgd bookId,
                 @BsonProperty("beginDate") LocalDate beginDate,
-                @BsonProperty("endDate") LocalDate endDate,
-                @BsonProperty("clientRepository") MgdClientRepository clientRepository) throws TooManyException {
+                @BsonProperty("endDate") LocalDate endDate) throws TooManyException {
         super();
         this.clientId = clientId;
         this.bookId = bookId;
         this.beginDate = beginDate;
         this.endDate = endDate;
-        this.clientRepository = clientRepository;
-
-//        validateRent();
-        calculateFee();
-        getClientById(clientId).addRent(this);
     }
 
-//    private void validateRent() throws TooManyException {
-//        Client client = getClientById(clientId);
-//        if (client.getBookCount() >= client.getClientType().getMaxBooks()) {
-//            throw new TooManyException("Client has already rented the maximum number of books.");
-//        }
-//
-//        long rentDays = ChronoUnit.DAYS.between(beginDate, endDate);
-//        if (rentDays > client.getClientType().getMaxRentDays()) {
-//            throw new TooManyException("Rent duration exceeds the maximum allowed days for this client type.");
-//        }
-//    }
-
-    private void calculateFee() {
-        Client client = getClientById(clientId);
+    public void calculateFee(Client client) {
         if (client.getClientType() instanceof NonStudent) {
             this.fee = ((NonStudent) client.getClientType()).getAdditionalFee();
+        } else if (client.getClientType() instanceof Student) {
+            this.fee = 0;
         }
     }
 
-    public void returnBook() {
-        Client client = getClientById(clientId);
+    public void returnBook(Client client) {
         client.removeRent(this);
-    }
-
-    private Client getClientById(UniqueIdMgd clientId) {
-        return clientRepository.findById(clientId);
     }
 
     public float getFee() {
@@ -90,8 +64,16 @@ public class Rent extends AbstractEntityMgd {
         return clientId;
     }
 
+    public void setFee(float fee) {
+        this.fee = fee;
+    }
+
     public UniqueIdMgd getBookId() {
         return bookId;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 }
 

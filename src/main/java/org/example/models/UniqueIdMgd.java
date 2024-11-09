@@ -2,6 +2,7 @@ package org.example.models;
 
 import org.bson.codecs.pojo.annotations.BsonId;
 
+import java.io.Serializable;
 import java.util.UUID;
 
 public class UniqueIdMgd {
@@ -13,9 +14,14 @@ public class UniqueIdMgd {
         this.id = UUID.randomUUID();
     }
 
+    public UniqueIdMgd(UUID id) {
+        this.id = id;
+    }
+
     public UUID getId() {
         return id;
     }
+
 
     @Override
     public String toString() {

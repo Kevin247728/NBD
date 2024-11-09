@@ -13,6 +13,7 @@ import org.example.models.Client;
 import org.example.models.Rent;
 import org.example.models.UniqueIdMgd;
 
+import java.io.Console;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -46,26 +47,40 @@ public class MgdRentRepository extends AbstractMongoRepository implements RentRe
             throw new IllegalArgumentException("Book not found");
         }
 
-        if (isBookCurrentlyRented(book.getEntityId())) {
+        if (book.isRented()) {
             throw new BookAlreadyRentedException("The book is already rented.");
         }
 
-        if (rent.getEntityId() == null) {
+        rent.calculateFee(client);
+        client.addRent(rent);
+        book.setRented(true);
+
+        // need to update the Book in the database now to include the rented true
+        Bson filterBook = Filters.eq("_id", book.getEntityId());
+        ReplaceOptions optionsBook = new ReplaceOptions().upsert(false);
+        bookCollection.replaceOne(filterBook, book, optionsBook);
+
+        // need to update the Client in the database now to include the new rent
+        Bson filterClient = Filters.eq("_id", client.getEntityId());
+        ReplaceOptions optionsClient = new ReplaceOptions().upsert(false);
+        clientCollection.replaceOne(filterClient, client, optionsClient);
+
+        if (findById(rent.getEntityId()) == null) {
             rentCollection.insertOne(rent);
         }
-//        else {
-//            Bson filter = Filters.eq("_id", rent.getEntityId());
-//            ReplaceOptions options = new ReplaceOptions().upsert(true);
-//            rentCollection.replaceOne(filter, rent, options);
-//        }
+        else {
+            Bson filter = Filters.eq("_id", rent.getEntityId());
+            ReplaceOptions options = new ReplaceOptions().upsert(true);
+            rentCollection.replaceOne(filter, rent, options);
+        }
     }
 
     @Override
     public Rent findById(UniqueIdMgd id) {
         Rent rent = rentCollection.find(Filters.eq("_id", id)).first();
-        if (rent == null) {
-            throw new EntityNotFoundException("Rent with ID " + id + " not found");
-        }
+//        if (rent == null) {
+//            throw new EntityNotFoundException("Rent with ID " + id + " not found");
+//        }
         return rent;
     }
 
@@ -78,6 +93,10 @@ public class MgdRentRepository extends AbstractMongoRepository implements RentRe
 
     @Override
     public boolean delete(Rent rent) {
+        Client client = clientCollection.find(Filters.eq("_id", rent.getClientId())).first();
+        Book book = bookCollection.find(Filters.eq("_id", rent.getBookId())).first();
+        rent.returnBook(client);
+        book.setRented(false);
         return rentCollection.deleteOne(Filters.eq("_id", rent.getEntityId())).getDeletedCount() > 0;
     }
 
@@ -99,13 +118,5 @@ public class MgdRentRepository extends AbstractMongoRepository implements RentRe
     public int getCurrentRentCount(UniqueIdMgd clientId) {
         long count = rentCollection.countDocuments(Filters.eq("clientId", clientId));
         return (int) count;
-    }
-
-    @Override
-    public boolean isBookCurrentlyRented(UniqueIdMgd bookId) {
-        long count = rentCollection.countDocuments(
-                Filters.and(Filters.eq("bookId", bookId), Filters.gt("endDate", LocalDate.now()))
-        );
-        return count > 0;
     }
 }

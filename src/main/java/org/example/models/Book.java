@@ -8,10 +8,14 @@ public class Book extends AbstractEntityMgd {
     @BsonProperty("title")
     private String title;
 
+    @BsonProperty("isRented")
+    private boolean isRented;
+
     @BsonCreator
     public Book(@BsonProperty("title") String title) {
         super();
         this.title = title;
+        this.isRented = false;
     }
 
 
@@ -20,5 +24,13 @@ public class Book extends AbstractEntityMgd {
     }
 
     public void setTitle(String title) {this.title = title;}
+
+    public boolean isRented() {
+        return isRented;
+    }
+
+    public void setRented(boolean rented) {
+        isRented = rented;
+    }
 }
 

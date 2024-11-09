@@ -66,4 +66,8 @@ public class Client extends AbstractEntityMgd {
     public int getBookCount() {
         return rents.size();
     }
+
+    public void setRents(List<Rent> rents) {
+        this.rents = rents;
+    }
 }

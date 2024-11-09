@@ -1,4 +1,4 @@
-package org.example.repositories;
+package org.example.Codecs;
 
 import org.bson.BsonReader;
 import org.bson.BsonWriter;

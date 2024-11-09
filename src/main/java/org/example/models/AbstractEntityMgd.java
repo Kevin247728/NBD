@@ -4,7 +4,7 @@ import org.bson.codecs.pojo.annotations.BsonProperty;
 public abstract class AbstractEntityMgd {
 
     @BsonProperty("_id")
-    private final UniqueIdMgd entityId;
+    private UniqueIdMgd entityId;
 
     public AbstractEntityMgd() {
         this.entityId = new UniqueIdMgd();
@@ -16,5 +16,9 @@ public abstract class AbstractEntityMgd {
 
     public UniqueIdMgd getEntityId() {
         return entityId;
+    }
+
+    public void setEntityId(UniqueIdMgd entityId) {
+        this.entityId = entityId;
     }
 }

@@ -15,5 +15,4 @@ public interface RentRepository {
     void create(Rent rent) throws TooManyException, BookAlreadyRentedException;
     boolean update(Rent rent);
     int getCurrentRentCount(UniqueIdMgd clientId);
-    boolean isBookCurrentlyRented(UniqueIdMgd bookId);
 }
