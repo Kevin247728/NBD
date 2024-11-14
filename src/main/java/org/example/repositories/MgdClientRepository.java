@@ -1,5 +1,6 @@
 package org.example.repositories;
 
+import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
@@ -21,7 +22,13 @@ public class MgdClientRepository extends AbstractMongoRepository implements Clie
 
     @Override
     public void create(Client client) {
-        clientCollection.insertOne(client);
+        try (ClientSession clientSession = mongoClient.startSession()) {
+            clientSession.startTransaction();
+            clientCollection.insertOne(clientSession, client);
+            clientSession.commitTransaction();
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
@@ -38,13 +45,27 @@ public class MgdClientRepository extends AbstractMongoRepository implements Clie
 
     @Override
     public boolean update(Client client) {
-        Bson filter = Filters.eq("_id", client.getEntityId());
-        ReplaceOptions options = new ReplaceOptions().upsert(false);
-        return clientCollection.replaceOne(filter, client, options).getModifiedCount() > 0;
+        try (ClientSession clientSession = mongoClient.startSession()) {
+            clientSession.startTransaction();
+            Bson filter = Filters.eq("_id", client.getEntityId());
+            ReplaceOptions options = new ReplaceOptions().upsert(false);
+            boolean updateSucceeded =  clientCollection.replaceOne(clientSession, filter, client, options).getModifiedCount() > 0;
+            clientSession.commitTransaction();
+            return updateSucceeded;
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     @Override
     public boolean delete(Client client) {
-        return clientCollection.deleteOne(Filters.eq("_id", client.getEntityId())).getDeletedCount() > 0;
+        try (ClientSession clientSession = mongoClient.startSession()) {
+            clientSession.startTransaction();
+            boolean deleteSucceeded =  clientCollection.deleteOne(clientSession, Filters.eq("_id", client.getEntityId())).getDeletedCount() > 0;
+            clientSession.commitTransaction();
+            return deleteSucceeded;
+        } catch (RuntimeException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

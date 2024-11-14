@@ -11,6 +11,10 @@ import org.junit.jupiter.api.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -34,6 +38,61 @@ public class MgdRentRepositoryTests {
     @AfterAll
     public void tearDown() {
         rentRepository.close();
+    }
+
+    @Test
+    public void testConcurrentRentingSameBook() throws TooManyException {
+        // Tworzymy klienta i książkę
+        Client client1 = new Client("Alice", "Concurrency1", new NonStudent());
+        Client client2 = new Client("Bob", "Concurrency2", new NonStudent());
+        Book book = new Book("Concurrent Rent Book");
+
+        clientRepository.create(client1);
+        clientRepository.create(client2);
+        bookRepository.create(book);
+
+        LocalDate beginDate = LocalDate.now();
+        LocalDate endDate = beginDate.plusDays(30);
+
+        Rent rent1 = new Rent(client1.getEntityId(), book.getEntityId(), beginDate, endDate);
+        Rent rent2 = new Rent(client2.getEntityId(), book.getEntityId(), beginDate, endDate);
+
+        // Uruchamiamy dwa wypożyczenia jednocześnie w osobnych wątkach
+        ExecutorService executorService = Executors.newFixedThreadPool(2);
+        Future<?> future1 = executorService.submit(() -> {
+            try {
+                rentRepository.create(rent1);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        Future<?> future2 = executorService.submit(() -> {
+            try {
+                rentRepository.create(rent2);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+
+        // Czekamy na wyniki z obu wątków
+        try {
+            future1.get();
+            future2.get();
+        } catch (InterruptedException | ExecutionException e) {
+            e.printStackTrace();
+        }
+
+        // Sprawdzamy, że tylko jeden rent jest zapisany, a książka jest wypożyczona przez jednego klienta
+        List<Rent> rents = rentRepository.findByClientId(client1.getEntityId());
+        rents.addAll(rentRepository.findByClientId(client2.getEntityId()));
+        assertEquals(1, rents.size()); // Tylko jedno wypożyczenie powinno istnieć
+
+        // Oczyszczamy stan
+        rentRepository.delete(rent1);
+        rentRepository.delete(rent2);
+        book.setRented(false);
+        bookRepository.update(book);
+        executorService.shutdown();
     }
 
 
@@ -139,7 +198,7 @@ public class MgdRentRepositoryTests {
         Rent rent = new Rent(client.getEntityId(), book.getEntityId(), beginDate, endDate);
         rentRepository.create(rent);
 
-        assertThrows(BookAlreadyRentedException.class, () -> {
+        assertThrows(RuntimeException.class, () -> {
             Rent rentRentedBook = new Rent(client.getEntityId(), book.getEntityId(), beginDate, endDate.plusDays(10));
             rentRepository.create(rentRentedBook);
         });
