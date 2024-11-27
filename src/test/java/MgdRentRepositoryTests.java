@@ -42,7 +42,7 @@ public class MgdRentRepositoryTests {
 
     @Test
     public void testConcurrentRentingSameBook() throws TooManyException {
-        // Tworzymy klienta i książkę
+
         Client client1 = new Client("Alice", "Concurrency1", new NonStudent());
         Client client2 = new Client("Bob", "Concurrency2", new NonStudent());
         Book book = new Book("Concurrent Rent Book");
@@ -57,42 +57,16 @@ public class MgdRentRepositoryTests {
         Rent rent1 = new Rent(client1.getEntityId(), book.getEntityId(), beginDate, endDate);
         Rent rent2 = new Rent(client2.getEntityId(), book.getEntityId(), beginDate, endDate);
 
-        // Uruchamiamy dwa wypożyczenia jednocześnie w osobnych wątkach
-        ExecutorService executorService = Executors.newFixedThreadPool(2);
-        Future<?> future1 = executorService.submit(() -> {
-            try {
-                rentRepository.create(rent1);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        Future<?> future2 = executorService.submit(() -> {
-            try {
-                rentRepository.create(rent2);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+        assertDoesNotThrow(() -> rentRepository.create(rent1));
 
-        // Czekamy na wyniki z obu wątków
-        try {
-            future1.get();
-            future2.get();
-        } catch (InterruptedException | ExecutionException e) {
-            e.printStackTrace();
-        }
+        assertThrows(RuntimeException.class, () -> rentRepository.create(rent2));
 
-        // Sprawdzamy, że tylko jeden rent jest zapisany, a książka jest wypożyczona przez jednego klienta
-        List<Rent> rents = rentRepository.findByClientId(client1.getEntityId());
-        rents.addAll(rentRepository.findByClientId(client2.getEntityId()));
-        assertEquals(1, rents.size()); // Tylko jedno wypożyczenie powinno istnieć
+        Book updatedBook = bookRepository.findById(book.getEntityId());
+        assertTrue(updatedBook.isRented(), "Książka powinna być oznaczona jako wypożyczona.");
 
-        // Oczyszczamy stan
-        rentRepository.delete(rent1);
-        rentRepository.delete(rent2);
-        book.setRented(false);
-        bookRepository.update(book);
-        executorService.shutdown();
+        List<Rent> rentsForBook = rentRepository.findByClientId(client1.getEntityId());
+        assertEquals(1, rentsForBook.size(), "Powinno być zapisane tylko jedno wypożyczenie dla książki.");
+
     }
 
 

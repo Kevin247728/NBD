@@ -38,7 +38,7 @@ public class RedisCacheService {
         if (result == null) {
             return null;
         }
-        return new JSONObject(result); 
+        return new JSONObject(result);
     }
 
     public void delJson(String key, String path) {

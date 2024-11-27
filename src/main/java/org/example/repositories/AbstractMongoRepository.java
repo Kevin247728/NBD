@@ -37,6 +37,7 @@ public abstract class AbstractMongoRepository implements AutoCloseable {
                         CodecRegistries.fromProviders(new UniqueIdCodecProvider()),
                         CodecRegistries.fromProviders(new RentCodecProvider()),
                         CodecRegistries.fromProviders(new ClientCodecProvider()),
+                        CodecRegistries.fromProviders(new BookCodecProvider()),
                         MongoClientSettings.getDefaultCodecRegistry(),
                         pojoCodecRegistry
                 ))
@@ -60,4 +61,6 @@ public abstract class AbstractMongoRepository implements AutoCloseable {
     public MongoDatabase getMongoDatabase() {
         return mongoDatabase;
     }
+
+
 }

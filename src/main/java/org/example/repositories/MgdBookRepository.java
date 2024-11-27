@@ -1,11 +1,9 @@
 package org.example.repositories;
 
-import com.mongodb.ConnectionString;
 import com.mongodb.client.ClientSession;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import com.mongodb.client.model.Filters;
-import com.mongodb.client.model.ReplaceOptions;
+import com.mongodb.client.model.*;
+import org.bson.Document;
 import org.example.models.Book;
 import org.example.models.UniqueIdMgd;
 import org.bson.conversions.Bson;
@@ -18,7 +16,45 @@ public class MgdBookRepository extends AbstractMongoRepository implements BookRe
     private final MongoCollection<Book> bookCollection;
 
     public MgdBookRepository() {
+        createBooksCollection();
         this.bookCollection = mongoDatabase.getCollection("books", Book.class);
+    }
+
+    private void createBooksCollection() {
+        ValidationOptions validationOptions = new ValidationOptions().validator(Document.parse("""
+            {
+                $jsonSchema: {
+                    "bsonType": "object",
+                    "required": ["title", "isRented"],
+                    "properties": {
+                        "title": {
+                            "bsonType": "string",
+                            "minLength": 1,
+                            "description": "Title is required and must be a non-empty string"
+                        },
+                        "isRented": {
+                            "bsonType": "bool",
+                            "description": "isRented must be true for rented and false for available"
+                        }
+                    }
+                }
+            }
+        """)).validationAction(ValidationAction.ERROR);
+
+        CreateCollectionOptions createCollectionOptions = new CreateCollectionOptions().validationOptions(validationOptions);
+
+        if (!collectionExists()) {
+            mongoDatabase.createCollection("books", createCollectionOptions);
+        }
+    }
+
+    private boolean collectionExists() {
+        for (String name : mongoDatabase.listCollectionNames()) {
+            if (name.equalsIgnoreCase("books")) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override

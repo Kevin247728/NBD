@@ -5,6 +5,8 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.ReplaceOptions;
+import com.mongodb.client.model.Updates;
+import com.mongodb.client.result.UpdateResult;
 import org.bson.conversions.Bson;
 import org.example.exceptions.BookAlreadyRentedException;
 import org.example.exceptions.EntityNotFoundException;
@@ -46,38 +48,27 @@ public class MgdRentRepository extends AbstractMongoRepository implements RentRe
         try (ClientSession clientSession = mongoClient.startSession()) {
             clientSession.startTransaction();
 
-            Book book = bookCollection.find(Filters.eq("_id", rent.getBookId())).first();
-            if (book == null) {
+            Bson filterBook = Filters.eq("_id", rent.getBookId());
+            Bson updateBook = Updates.set("isRented", true);
+
+            UpdateResult updateResult = bookCollection.updateOne(clientSession, filterBook, updateBook);
+            if (updateResult.getModifiedCount() == 0) {
                 clientSession.abortTransaction();
-                //throw new IllegalArgumentException("Book not found");
+                throw new BookAlreadyRentedException("The book is already rented.");
             }
 
-            if (book.isRented()) {
-                clientSession.abortTransaction();
-                //throw new BookAlreadyRentedException("The book is already rented.");
+            Book book = bookCollection.find(filterBook).first();
+            if (book != null) {
+                book.setRented(true);
+                Bson filter = Filters.eq("_id", book.getEntityId());
+                ReplaceOptions options = new ReplaceOptions().upsert(false);
+                bookCollection.replaceOne(clientSession, filter, book, options);
             }
 
             rent.calculateFee(client);
             client.addRent(rent);
-            book.setRented(true);
 
-            // need to update the Book in the database now to include the rented true
-            Bson filterBook = Filters.eq("_id", book.getEntityId());
-            ReplaceOptions optionsBook = new ReplaceOptions().upsert(false);
-            bookCollection.replaceOne(clientSession, filterBook, book, optionsBook);
-
-            // need to update the Client in the database now to include the new rent
-            Bson filterClient = Filters.eq("_id", client.getEntityId());
-            ReplaceOptions optionsClient = new ReplaceOptions().upsert(false);
-            clientCollection.replaceOne(clientSession, filterClient, client, optionsClient);
-
-            if (findById(rent.getEntityId()) == null) {
-                rentCollection.insertOne(clientSession, rent);
-            } else {
-                Bson filter = Filters.eq("_id", rent.getEntityId());
-                ReplaceOptions options = new ReplaceOptions().upsert(true);
-                rentCollection.replaceOne(clientSession, filter, rent, options);
-            }
+            rentCollection.insertOne(clientSession, rent);
 
             clientSession.commitTransaction();
         } catch (Exception e) {
