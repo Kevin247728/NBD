@@ -13,9 +13,11 @@ import org.example.repositories.MgdRentRepository;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPooled;
 
+import java.io.IOException;
 import java.time.LocalDate;
 
-public class Main {
-    public static void main(String[] args) {
+public class BenchmarkRunner {
+    public static void main(String[] args) throws Exception {
+        org.openjdk.jmh.Main.main(args);
     }
 }

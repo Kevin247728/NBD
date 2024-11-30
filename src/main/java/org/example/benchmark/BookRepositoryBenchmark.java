@@ -21,7 +21,7 @@ public class BookRepositoryBenchmark {
 
     private static final int NUMBER_OF_BOOKS = 50;
 
-    Book book15;
+    private Book book15;
 
     @Setup(Level.Trial)
     public void setup() {
@@ -73,53 +73,8 @@ public class BookRepositoryBenchmark {
         Book book14 = new Book("TestBook14");
         decorator.create(book14);
 
-        Book book15 = new Book("TestBook15");
+        book15 = new Book("TestBook15");
         decorator.create(book15);
-
-        Book book16 = new Book("TestBook16");
-        decorator.create(book16);
-
-        Book book17 = new Book("TestBook17");
-        decorator.create(book17);
-
-        Book book18 = new Book("TestBook18");
-        decorator.create(book18);
-
-        Book book19 = new Book("TestBook19");
-        decorator.create(book19);
-
-        Book book20 = new Book("TestBook20");
-        decorator.create(book20);
-
-        Book book21 = new Book("TestBook21");
-        decorator.create(book21);
-
-        Book book22 = new Book("TestBook22");
-        decorator.create(book22);
-
-        Book book23 = new Book("TestBook23");
-        decorator.create(book23);
-
-        Book book24 = new Book("TestBook24");
-        decorator.create(book24);
-
-        Book book25 = new Book("TestBook25");
-        decorator.create(book25);
-
-        Book book26 = new Book("TestBook26");
-        decorator.create(book26);
-
-        Book book27 = new Book("TestBook27");
-        decorator.create(book27);
-
-        Book book28 = new Book("TestBook28");
-        decorator.create(book28);
-
-        Book book29 = new Book("TestBook29");
-        decorator.create(book29);
-
-        Book book30 = new Book("TestBook30");
-        decorator.create(book30);
     }
 
     @Benchmark
@@ -130,12 +85,6 @@ public class BookRepositoryBenchmark {
     @Benchmark
     public Book testCacheMissMongoHit() {
         redisBookRepository.clearCache();
-        return decorator.findById(book15.getEntityId());
-    }
-
-    @Benchmark
-    public Book testCacheMissMongoMiss() {
-        decorator.delete(book15);
         return decorator.findById(book15.getEntityId());
     }
 }
