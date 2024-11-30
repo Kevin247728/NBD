@@ -1,13 +1,13 @@
+import org.example.Redis.RedisConnectionManager;
 import org.example.exceptions.BookAlreadyRentedException;
 import org.example.exceptions.TooManyException;
 import org.example.models.Book;
 import org.example.models.Client;
 import org.example.models.NonStudent;
 import org.example.models.Rent;
-import org.example.repositories.MgdBookRepository;
-import org.example.repositories.MgdClientRepository;
-import org.example.repositories.MgdRentRepository;
+import org.example.repositories.*;
 import org.junit.jupiter.api.*;
+import redis.clients.jedis.JedisPooled;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,12 +24,17 @@ public class MgdRentRepositoryTests {
     private MgdRentRepository rentRepository;
     private MgdClientRepository clientRepository;
     private MgdBookRepository bookRepository;
+    private JedisPooled pool;
+    private RedisBookRepository redisRepository;
 
     @BeforeAll
     public void setUp() {
-        rentRepository = new MgdRentRepository();
+        RedisConnectionManager.initConnectionFromConfig("src/main/resources/application.properties");
+        pool = RedisConnectionManager.getJedis();
+        redisRepository = new RedisBookRepository(pool);
         clientRepository = new MgdClientRepository();
         bookRepository = new MgdBookRepository();
+        rentRepository = new MgdRentRepository(new RedisMongoBookRepositoryDecorator(redisRepository, bookRepository));
         rentRepository.getMongoDatabase().getCollection("rents").drop();
         clientRepository.getMongoDatabase().getCollection("clients").drop();
         bookRepository.getMongoDatabase().getCollection("books").drop();

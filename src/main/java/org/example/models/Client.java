@@ -31,6 +31,10 @@ public class Client extends AbstractEntityMgd {
         this.clientType = clientType;
     }
 
+    public int getRentsCount() {
+        return rents.size();
+    }
+
     public void setFirstName(String firstName) {
         this.firstName = firstName;
     }

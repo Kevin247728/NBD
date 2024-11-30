@@ -11,6 +11,7 @@ import org.example.repositories.MgdBookRepository;
 import org.example.repositories.MgdClientRepository;
 import org.example.repositories.MgdRentRepository;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPooled;
 
 import java.time.LocalDate;
 

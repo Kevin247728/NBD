@@ -26,11 +26,13 @@ public class MgdRentRepository extends AbstractMongoRepository implements RentRe
     private final MongoCollection<Rent> rentCollection;
     private final MongoCollection<Client> clientCollection;
     private final MongoCollection<Book> bookCollection;
+    private final RedisMongoBookRepositoryDecorator bookRepositoryDecorator;
 
-    public MgdRentRepository() {
+    public MgdRentRepository(RedisMongoBookRepositoryDecorator bookRepositoryDecorator) {
         this.bookCollection = mongoDatabase.getCollection("books", Book.class);
         this.clientCollection = mongoDatabase.getCollection("clients", Client.class);
         this.rentCollection = mongoDatabase.getCollection("rents", Rent.class);
+        this.bookRepositoryDecorator = bookRepositoryDecorator;
     }
 
     @Override
@@ -60,6 +62,7 @@ public class MgdRentRepository extends AbstractMongoRepository implements RentRe
             Book book = bookCollection.find(filterBook).first();
             if (book != null) {
                 book.setRented(true);
+                bookRepositoryDecorator.getRedisRepository().update(book);
                 Bson filter = Filters.eq("_id", book.getEntityId());
                 ReplaceOptions options = new ReplaceOptions().upsert(false);
                 bookCollection.replaceOne(clientSession, filter, book, options);
@@ -99,7 +102,13 @@ public class MgdRentRepository extends AbstractMongoRepository implements RentRe
             Client client = clientCollection.find(Filters.eq("_id", rent.getClientId())).first();
             Book book = bookCollection.find(Filters.eq("_id", rent.getBookId())).first();
             rent.returnBook(client);
-            book.setRented(false);
+            if (book != null) {
+                book.setRented(false);
+                bookRepositoryDecorator.getRedisRepository().update(book);
+                Bson filter = Filters.eq("_id", book.getEntityId());
+                ReplaceOptions options = new ReplaceOptions().upsert(false);
+                bookCollection.replaceOne(clientSession, filter, book, options);
+            }
             boolean deleteSucceeded =  rentCollection.deleteOne(clientSession, Filters.eq("_id", rent.getEntityId())).getDeletedCount() > 0;
             clientSession.commitTransaction();
             return deleteSucceeded;

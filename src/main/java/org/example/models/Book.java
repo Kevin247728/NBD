@@ -18,6 +18,15 @@ public class Book extends AbstractEntityMgd {
         this.isRented = false;
     }
 
+    public Book() {
+        super();
+    }
+
+    public Book(UniqueIdMgd id, String title, boolean isRented) {
+        super(id);
+        this.title = title;
+        this.isRented = isRented;
+    }
 
     public String getTitle() {
         return title;

@@ -46,5 +46,32 @@
             <artifactId>yasson</artifactId>
             <version>3.0.4</version>
         </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>1.36</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>1.36</version>
+        </dependency>
     </dependencies>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.openjdk.jmh</groupId>
+                            <artifactId>jmh-generator-annprocess</artifactId>
+                            <version>1.37</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

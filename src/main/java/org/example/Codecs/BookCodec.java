@@ -8,9 +8,6 @@ import org.bson.codecs.EncoderContext;
 import org.bson.codecs.configuration.CodecRegistry;
 import org.example.models.*;
 
-import java.util.ArrayList;
-import java.util.List;
-
 public class BookCodec implements Codec<Book> {
     private final Codec<Book> bookCodec;
     private final Codec<UniqueIdMgd> uniqueIdCodec;
@@ -32,6 +29,7 @@ public class BookCodec implements Codec<Book> {
         bsonReader.readEndDocument();
 
         Book book = new Book(title);
+        book.setEntityId(uniqueIdMgd);
         book.setRented(isRented);
         return book;
     }
