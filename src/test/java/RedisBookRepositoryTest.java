@@ -29,7 +29,13 @@ public class RedisBookRepositoryTest {
         redisRepository.create(book);
 
         String cacheKey = "book: " + book.getEntityId().getId().toString();
-        String json = pool.get(cacheKey);
+        String json = null;
+
+        try {
+            json = pool.get(cacheKey);
+        } catch (Exception e) {
+            System.err.println("Error while accessing Redis: " + e.getMessage());
+        }
 
         assertNotNull(json);
         Book retrievedBook = redisRepository.findById(book.getEntityId());

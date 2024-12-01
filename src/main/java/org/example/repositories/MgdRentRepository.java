@@ -9,15 +9,11 @@ import com.mongodb.client.model.Updates;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.conversions.Bson;
 import org.example.exceptions.BookAlreadyRentedException;
-import org.example.exceptions.EntityNotFoundException;
 import org.example.exceptions.TooManyException;
 import org.example.models.Book;
 import org.example.models.Client;
 import org.example.models.Rent;
 import org.example.models.UniqueIdMgd;
-
-import java.io.Console;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 

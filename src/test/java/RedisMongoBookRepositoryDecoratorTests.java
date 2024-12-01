@@ -1,10 +1,8 @@
-import com.mongodb.client.MongoDatabase;
 import org.example.Redis.RedisConnectionManager;
 import org.example.exceptions.BookAlreadyRentedException;
 import org.example.exceptions.TooManyException;
 import org.example.models.*;
 import org.example.repositories.*;
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import redis.clients.jedis.JedisPooled;

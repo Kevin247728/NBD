@@ -47,7 +47,7 @@ public class RedisConnectionManager {
 
     public static JedisPooled getJedis() {
         if (pool == null) {
-            throw new IllegalStateException("Redis connection has not been initialized.");
+            System.err.println("Redis connection has not been initialized: ");
         }
         return pool;
     }

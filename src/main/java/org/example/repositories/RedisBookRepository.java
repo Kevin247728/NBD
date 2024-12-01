@@ -4,7 +4,6 @@ import jakarta.json.bind.Jsonb;
 import jakarta.json.bind.JsonbBuilder;
 import org.example.models.Book;
 import org.example.models.UniqueIdMgd;
-import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPooled;
 import redis.clients.jedis.params.ScanParams;
 import redis.clients.jedis.resps.ScanResult;
@@ -34,7 +33,8 @@ public class RedisBookRepository implements BookRepository {
             }
             return jsonb.fromJson(json, Book.class);
         } catch (Exception e) {
-            throw new RuntimeException("Error while fetching book by ID from cache", e);
+            System.err.println("Redis unavailable for findById: " + e.getMessage());
+            return null;
         }
     }
 
@@ -57,7 +57,7 @@ public class RedisBookRepository implements BookRepository {
                 }
             } while (!"0".equals(cursor));
         } catch (Exception e) {
-            throw new RuntimeException("Error while fetching books from cache", e);
+            System.err.println("Redis unavailable for findAll: " + e.getMessage());
         }
 
         return books;
@@ -71,7 +71,7 @@ public class RedisBookRepository implements BookRepository {
             pool.set(cacheKey, json);
             pool.expire(cacheKey, CACHE_TTL_SECONDS);
         } catch (Exception e) {
-            throw new RuntimeException("Error while creating book in cache", e);
+            System.err.println("Redis unavailable for create: " + e.getMessage());
         }
     }
 
@@ -82,7 +82,8 @@ public class RedisBookRepository implements BookRepository {
             Long result = pool.del(cacheKey);
             return result > 0;
         } catch (Exception e) {
-            throw new RuntimeException("Error while deleting book from cache", e);
+            System.err.println("Redis unavailable for delete: " + e.getMessage());
+            return false;
         }
     }
 
@@ -95,7 +96,8 @@ public class RedisBookRepository implements BookRepository {
             pool.expire(cacheKey, CACHE_TTL_SECONDS);
             return true;
         } catch (Exception e) {
-            throw new RuntimeException("Error while updating book in cache", e);
+            System.err.println("Redis unavailable for update: " + e.getMessage());
+            return false;
         }
     }
 
@@ -103,7 +105,7 @@ public class RedisBookRepository implements BookRepository {
         try {
             pool.flushAll();
         } catch (Exception e) {
-            throw new RuntimeException("Error while clearing cache", e);
+            System.err.println("Redis unavailable for clearCache: " + e.getMessage());
         }
     }
 }
