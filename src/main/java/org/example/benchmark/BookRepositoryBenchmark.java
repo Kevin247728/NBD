@@ -19,8 +19,6 @@ public class BookRepositoryBenchmark {
     private JedisPooled jedisPool;
     private RedisMongoBookRepositoryDecorator decorator;
 
-    private static final int NUMBER_OF_BOOKS = 50;
-
     private Book book15;
 
     @Setup(Level.Trial)
@@ -75,6 +73,7 @@ public class BookRepositoryBenchmark {
 
         book15 = new Book("TestBook15");
         decorator.create(book15);
+        //decorator.getRedisRepository().clearCache();
     }
 
     @Benchmark
@@ -82,9 +81,13 @@ public class BookRepositoryBenchmark {
         return decorator.findById(book15.getEntityId());
     }
 
+//    @Benchmark
+//    public Book testCacheMissMongoHit() {
+//        return decorator.findById(book15.getEntityId());
+//    }
+
     @Benchmark
-    public Book testCacheMissMongoHit() {
-        redisBookRepository.clearCache();
-        return decorator.findById(book15.getEntityId());
+    public Book testMongoHit() {
+        return mgdBookRepository.findById(book15.getEntityId());
     }
 }

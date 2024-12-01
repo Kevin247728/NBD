@@ -71,11 +71,7 @@ public class MgdBookRepository extends AbstractMongoRepository implements BookRe
 
     @Override
     public Book findById(UniqueIdMgd id) {
-        Book book = bookCollection.find(Filters.eq("_id", id)).first();
-        if (book == null) {
-            throw new EntityNotFoundException("Book with ID " + id + " not found");
-        }
-        return book;
+        return bookCollection.find(Filters.eq("_id", id)).first();
     }
 
     @Override

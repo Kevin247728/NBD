@@ -17,51 +17,95 @@ public class RedisMongoBookRepositoryDecorator implements BookRepository {
     /** We add the book to cache when it is searched for, but does not exist in cache **/
     @Override
     public Book findById(UniqueIdMgd id) {
-        Book book = redisRepository.findById(id);
+        try {
+            Book book = redisRepository.findById(id);
 
-        if (book != null) {
+            if (book != null) {
+                return book;
+            }
+
+            book = mgdRepository.findById(id);
+            if (book != null) {
+                try {
+                    redisRepository.create(book);
+                } catch (Exception e) {
+                    System.err.println("Failed to add book to Redis cache: " + e.getMessage());
+                }
+            }
+
             return book;
+        } catch (Exception e) {
+            throw new RuntimeException("Error during findById operation", e);
         }
-
-        book = mgdRepository.findById(id);
-        if (book != null) {
-            redisRepository.create(book);
-        }
-
-        return book;
     }
 
     @Override
     public List<Book> findAll() {
-        List<Book> books = redisRepository.findAll();
+        try {
+            List<Book> books = redisRepository.findAll();
 
-        if (books.isEmpty()) {
-            books = mgdRepository.findAll();
+            if (books.isEmpty()) {
+                books = mgdRepository.findAll();
+            }
+
+            return books;
+        } catch (Exception e) {
+            throw new RuntimeException("Error during findAll operation", e);
         }
-
-        return books;
     }
 
     @Override
     public void create(Book book) {
-        redisRepository.create(book);
+        try {
+            redisRepository.create(book);
+        } catch (Exception e) {
+            System.err.println("Failed to create book in Redis cache: " + e.getMessage());
+        }
 
-        mgdRepository.create(book);
+        try {
+            mgdRepository.create(book);
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to create book in MongoDB", e);
+        }
     }
 
     /** We update the book in cache when it gets rented or returned **/
     @Override
     public boolean update(Book book) {
-        boolean isUpdatedInMongoDB = mgdRepository.update(book);
-        boolean isUpdatedInRedis = redisRepository.update(book);
+        boolean isUpdatedInMongoDB = false;
+        boolean isUpdatedInRedis = false;
+
+        try {
+            isUpdatedInMongoDB = mgdRepository.update(book);
+        } catch (Exception e) {
+            System.err.println("Failed to update book in MongoDB: " + e.getMessage());
+        }
+
+        try {
+            isUpdatedInRedis = redisRepository.update(book);
+        } catch (Exception e) {
+            System.err.println("Failed to update book in Redis cache: " + e.getMessage());
+        }
 
         return isUpdatedInMongoDB && isUpdatedInRedis;
     }
 
     @Override
     public boolean delete(Book book) {
-        boolean isDeletedInMongoDB = mgdRepository.delete(book);
-        boolean isDeletedInRedis = redisRepository.delete(book);
+        boolean isDeletedInMongoDB = false;
+        boolean isDeletedInRedis = false;
+
+        try {
+            isDeletedInMongoDB = mgdRepository.delete(book);
+        } catch (Exception e) {
+            System.err.println("Failed to delete book from MongoDB: " + e.getMessage());
+        }
+
+        try {
+            isDeletedInRedis = redisRepository.delete(book);
+        } catch (Exception e) {
+            System.err.println("Failed to delete book from Redis cache: " + e.getMessage());
+        }
 
         return isDeletedInMongoDB && isDeletedInRedis;
     }
