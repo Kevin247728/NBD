@@ -1,56 +1,68 @@
 services:
-  mongo1:
-    image: mongo:8.0
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27017"]
+  cassandra1:
+    image: docker.io/bitnami/cassandra:latest
+    hostname: cassandra1
+    container_name: cassandra1
     ports:
-      - "27017:27017"
+      - "7000:7000"
+      - "9042:9042"
     volumes:
-      - mongo1_data:/data/db
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-    healthcheck:
-      test: echo "try { rs.status() } catch (err) { rs.initiate({_id:'rs0',members:[{_id:0,host:'host.docker.internal:27017',priority:1},{_id:1,host:'host.docker.internal:27018',priority:0.5},{_id:2,host:'host.docker.internal:27019',priority:0.5}]}) }" | mongosh --port 27017 --quiet
-      interval: 5s
-      timeout: 30s
-      start_period: 0s
-      retries: 30
-
-  mongo2:
-    image: mongo:8.0
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27018"]
-    ports:
-      - "27018:27018"
-    volumes:
-      - mongo2_data:/data/db
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  mongo3:
-    image: mongo:8.0
-    command: ["--replSet", "rs0", "--bind_ip_all", "--port", "27019"]
-    ports:
-      - "27019:27019"
-    volumes:
-      - mongo3_data:/data/db
-    extra_hosts:
-      - "host.docker.internal:host-gateway"
-
-  redis-stack:
-    image: redis/redis-stack:latest
-    ports:
-      - "8001:8001"
-      - "6379:6379"
-    volumes:
-      - redis-stack-data:/bitnami/redis/data
+      - cassandra1_data:/bitnami
     networks:
-      - redisnet
+      - cassandranet
+    environment:
+      - CASSANDRA_LISTEN_ADDRESS=cassandra1
+      - CASSANDRA_BROADCAST_ADDRESS=cassandra1
+      - CASSANDRA_SEEDS=cassandra1,cassandra2
+      - CASSANDRA_CLUSTER_NAME=nbd-cassandra-cluster
+      - CASSANDRA_DATACENTER=dc1
+      - CASSANDRA_PASSWORD_SEEDER=yes
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_USER=nbd
+      - CASSANDRA_PASSWORD=nbd
+      - MAX_HEAP_SIZE=2G
+      - HEAP_NEWSIZE=200M
+
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  cassandra2:
+    image: docker.io/bitnami/cassandra:latest
+    hostname: cassandra2
+    container_name: cassandra2
+    ports:
+      - "7001:7000"
+      - "9043:9042"
+    volumes:
+      - cassandra2_data:/bitnami
+    networks:
+      - cassandranet
+    environment:
+      - CASSANDRA_LISTEN_ADDRESS=cassandra2
+      - CASSANDRA_BROADCAST_ADDRESS=cassandra2
+      - CASSANDRA_SEEDS=cassandra1,cassandra2
+      - CASSANDRA_CLUSTER_NAME=nbd-cassandra-cluster
+      - CASSANDRA_DATACENTER=dc1
+      - CASSANDRA_PASSWORD_SEEDER=yes
+      - CASSANDRA_ENDPOINT_SNITCH=GossipingPropertyFileSnitch
+      - CASSANDRA_USER=nbd
+      - CASSANDRA_PASSWORD=nbd
+      - MAX_HEAP_SIZE=2G
+      - HEAP_NEWSIZE=200M
+
+    healthcheck:
+      test: ["CMD-SHELL", "[ $$(nodetool statusgossip) = running ]"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
 
 volumes:
-  mongo1_data:
-  mongo2_data:
-  mongo3_data:
-  redis-stack-data:
-    driver: local
+  cassandra1_data:
+  cassandra2_data:
+
 
 networks:
-  redisnet: { }
+  cassandranet: { }
