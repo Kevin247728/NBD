@@ -6,16 +6,24 @@ import com.datastax.oss.driver.api.core.CqlSession;
 import java.net.InetSocketAddress;
 
 public class CassandraConnection implements AutoCloseable {
-    private static CqlSession session;
+    private CqlSession session;
 
-    public void initSession() {
-        session = CqlSession.builder()
-                .addContactPoint(new InetSocketAddress("cassandra1", 9042))
-                .addContactPoint(new InetSocketAddress("cassandra2", 9043))
-                .withLocalDatacenter("dc1")
-                .withAuthCredentials("nbd", "nbd")
-                .withKeyspace(CqlIdentifier.fromCql("rent_a_book"))
-                .build();
+    public CassandraConnection() {
+        try {
+
+            this.session = CqlSession.builder()
+                    .addContactPoint(new InetSocketAddress("cassandra1", 9042))
+                    .addContactPoint(new InetSocketAddress("cassandra2", 9043))
+                    .withLocalDatacenter("dc1")
+                    .withAuthCredentials("nbd", "nbd")
+                    .withKeyspace(CqlIdentifier.fromCql("rent_a_book"))
+                    .build();
+            createKeyspace();
+            System.out.println("Sesja zainicjalizowana pomyślnie.");
+        } catch (Exception e) {
+            System.err.println("Błąd podczas inicjalizacji sesji: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
     
     public void createKeyspace() {
