@@ -1,24 +1,21 @@
 package org.example.Cassandra;
 
-import com.datastax.oss.driver.api.core.CqlIdentifier;
 import com.datastax.oss.driver.api.core.CqlSession;
-
 import java.net.InetSocketAddress;
 
-public class CassandraConnection implements AutoCloseable {
+public class CassandraConnection {
     private CqlSession session;
 
     public CassandraConnection() {
         try {
 
             this.session = CqlSession.builder()
-                    .addContactPoint(new InetSocketAddress("cassandra1", 9042))
-                    .addContactPoint(new InetSocketAddress("cassandra2", 9043))
+                    .addContactPoint(new InetSocketAddress("localhost", 9042))
+                    .addContactPoint(new InetSocketAddress("localhost", 9043))
                     .withLocalDatacenter("dc1")
                     .withAuthCredentials("nbd", "nbd")
-                    .withKeyspace(CqlIdentifier.fromCql("rent_a_book"))
+                    //.withKeyspace(CqlIdentifier.fromCql("rent_a_book"))
                     .build();
-            createKeyspace();
             System.out.println("Sesja zainicjalizowana pomyślnie.");
         } catch (Exception e) {
             System.err.println("Błąd podczas inicjalizacji sesji: " + e.getMessage());
@@ -36,7 +33,4 @@ public class CassandraConnection implements AutoCloseable {
             throw new IllegalStateException("Session has not been initialized.");
         }
     }
-
-    @Override
-    public void close() {}
 }

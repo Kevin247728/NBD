@@ -1,18 +1,26 @@
-//package org.example.models;
-//import org.bson.codecs.pojo.annotations.BsonCreator;
-//import org.bson.codecs.pojo.annotations.BsonDiscriminator;
-//import org.bson.codecs.pojo.annotations.BsonProperty;
-//
-//@BsonDiscriminator(key = "type", value = "Student")
-//public class Student extends ClientType {
-//
-//    @BsonCreator
-//    public Student(@BsonProperty("maxBooks") int maxBooks,
-//                   @BsonProperty("maxRentDays") int maxRentDays) {
-//        super(maxBooks, maxRentDays);
-//    }
-//
-//    public Student() {
-//        super(3, 20);
-//    }
-//}
+package org.example.models;
+
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
+import com.datastax.oss.driver.api.mapper.entity.naming.GetterStyle;
+
+@Entity(defaultKeyspace = "rent_a_book")
+@CqlName("clients")
+@PropertyStrategy(mutable = false, getterStyle = GetterStyle.JAVABEANS)
+public class Student extends Client {
+
+    public Student(String firstName, String lastName) {
+        super(firstName, lastName, "Student", 5, 30);
+    }
+
+    @Override
+    public String toString() {
+        return "Student{" +
+                "firstName='" + getFirstName() + '\'' +
+                ", lastName='" + getLastName() + '\'' +
+                ", maxBooks=" + getMaxBooks() +
+                ", maxRentDays=" + getMaxRentDays() +
+                '}';
+    }
+}

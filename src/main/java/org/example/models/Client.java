@@ -1,77 +1,73 @@
-//package org.example.models;
-//
-//import org.bson.codecs.pojo.annotations.BsonCreator;
-//import org.bson.codecs.pojo.annotations.BsonProperty;
-//
-//import java.util.ArrayList;
-//import java.util.List;
-//
-//
-//public class Client extends AbstractEntityMgd {
-//
-//    @BsonProperty("firstName")
-//    private String firstName;
-//
-//    @BsonProperty("lastName")
-//    private String lastName;
-//
-//    @BsonProperty("clientType")
-//    private ClientType clientType;
-//
-//    @BsonProperty("rents")
-//    private List<Rent> rents = new ArrayList<>();
-//
-//    @BsonCreator
-//    public Client(@BsonProperty("firstName") String firstName,
-//                  @BsonProperty("lastName") String lastName,
-//                  @BsonProperty("clientType") ClientType clientType) {
-//        super();
-//        this.firstName = firstName;
-//        this.lastName = lastName;
-//        this.clientType = clientType;
-//    }
-//
-//    public int getRentsCount() {
-//        return rents.size();
-//    }
-//
-//    public void setFirstName(String firstName) {
-//        this.firstName = firstName;
-//    }
-//
-//    public void setLastName(String lastName) {
-//        this.lastName = lastName;
-//    }
-//
-//    public String getFirstName() {
-//        return firstName;
-//    }
-//
-//    public String getLastName() {
-//        return lastName;
-//    }
-//
-//    public ClientType getClientType() {
-//        return clientType;
-//    }
-//
-//    public List<Rent> getRents() {
-//        return rents;
-//    }
-//
-//    public void addRent(Rent rent) {
-//        rents.add(rent);
-//    }
-//
-//    public void removeRent(Rent rent) {
-//        rents.remove(rent);
-//    }
-//
-//    public int getBookCount() {
-//        return rents.size();
-//    }
-//
-//    public void setRents(List<Rent> rents) {
-//        this.rents = rents;
-//    }
-//}
+package org.example.models;
+
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
+import com.datastax.oss.driver.api.mapper.entity.naming.GetterStyle;
+
+import java.util.UUID;
+
+@Entity(defaultKeyspace = "rent_a_book")
+@CqlName("clients")
+@PropertyStrategy(mutable = false, getterStyle = GetterStyle.JAVABEANS)
+public class Client {
+
+    @PartitionKey
+    private UUID id;
+
+    @CqlName("first_name")
+    private String firstName;
+
+    @CqlName("last_name")
+    private String lastName;
+
+    private String discriminator;
+
+    @CqlName("max_books")
+    private int maxBooks;
+
+    @CqlName("max_rent_days")
+    private int maxRentDays;
+
+    public Client(String firstName, String lastName, String discriminator, int maxBooks, int maxRentDays) {
+        this.id = UUID.randomUUID();
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.discriminator = discriminator;
+        this.maxBooks = maxBooks;
+        this.maxRentDays = maxRentDays;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public String getLastName() {
+        return lastName;
+    }
+
+    public String getDiscriminator() {
+        return discriminator;
+    }
+
+    public int getMaxBooks() {
+        return maxBooks;
+    }
+
+    public int getMaxRentDays() {
+        return maxRentDays;
+    }
+
+    @Override
+    public String toString() {
+        return "Client{" +
+                "id=" + id +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", discriminator='" + discriminator + '\'' +
+                ", maxBooks=" + maxBooks +
+                ", maxRentDays=" + maxRentDays +
+                '}';
+    }
+}

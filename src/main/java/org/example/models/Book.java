@@ -1,45 +1,44 @@
-//package org.example.models;
-//import org.bson.codecs.pojo.annotations.BsonCreator;
-//import org.bson.codecs.pojo.annotations.BsonProperty;
-//
-//
-//public class Book extends AbstractEntityMgd {
-//
-//    @BsonProperty("title")
-//    private String title;
-//
-//    @BsonProperty("isRented")
-//    private boolean isRented;
-//
-//    @BsonCreator
-//    public Book(@BsonProperty("title") String title) {
-//        super();
-//        this.title = title;
-//        this.isRented = false;
-//    }
-//
-//    public Book() {
-//        super();
-//    }
-//
-//    public Book(UniqueIdMgd id, String title, boolean isRented) {
-//        super(id);
-//        this.title = title;
-//        this.isRented = isRented;
-//    }
-//
-//    public String getTitle() {
-//        return title;
-//    }
-//
-//    public void setTitle(String title) {this.title = title;}
-//
-//    public boolean isRented() {
-//        return isRented;
-//    }
-//
-//    public void setRented(boolean rented) {
-//        isRented = rented;
-//    }
-//}
+package org.example.models;
+
+import com.datastax.oss.driver.api.mapper.annotations.CqlName;
+import com.datastax.oss.driver.api.mapper.annotations.Entity;
+import com.datastax.oss.driver.api.mapper.annotations.PartitionKey;
+import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
+import com.datastax.oss.driver.api.mapper.entity.naming.GetterStyle;
+
+import java.util.UUID;
+
+@Entity(defaultKeyspace = "rent_a_book")
+@CqlName("books")
+@PropertyStrategy(mutable = false, getterStyle = GetterStyle.JAVABEANS)
+public class Book {
+
+    @PartitionKey
+    private UUID id;
+
+    private String title;
+
+    @CqlName("is_rented")
+    private boolean isRented;
+
+    public Book(String title, boolean isRented) {
+        this.title = title;
+        this.isRented = isRented;
+        this.id = UUID.randomUUID();
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {this.title = title;}
+
+    public boolean isRented() {
+        return isRented;
+    }
+
+    public void setRented(boolean rented) {
+        isRented = rented;
+    }
+}
 
