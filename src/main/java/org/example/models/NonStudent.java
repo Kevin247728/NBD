@@ -5,6 +5,8 @@ import com.datastax.oss.driver.api.mapper.annotations.Entity;
 import com.datastax.oss.driver.api.mapper.annotations.PropertyStrategy;
 import com.datastax.oss.driver.api.mapper.entity.naming.GetterStyle;
 
+import java.util.UUID;
+
 @Entity(defaultKeyspace = "rent_a_book")
 @CqlName("clients")
 @PropertyStrategy(mutable = false, getterStyle = GetterStyle.JAVABEANS)
@@ -13,8 +15,8 @@ public class NonStudent extends Client {
     @CqlName("additional_fee")
     private float additionalFee;
 
-    public NonStudent(String firstName, String lastName, float additionalFee) {
-        super(firstName, lastName, "NonStudent", 3, 15);
+    public NonStudent(UUID id, float additionalFee, String firstName, String lastName, String discriminator, int maxBooks, int maxRentDays) {
+        super(id, firstName, lastName, discriminator, maxBooks, maxRentDays);
         this.additionalFee = additionalFee;
     }
 

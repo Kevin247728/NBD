@@ -14,24 +14,33 @@ import java.util.UUID;
 public class Client {
 
     @PartitionKey
-    private UUID id;
+    protected UUID id;
 
     @CqlName("first_name")
-    private String firstName;
+    protected String firstName;
 
     @CqlName("last_name")
-    private String lastName;
+    protected String lastName;
 
-    private String discriminator;
+    protected String discriminator;
 
     @CqlName("max_books")
-    private int maxBooks;
+    protected int maxBooks;
 
     @CqlName("max_rent_days")
-    private int maxRentDays;
+    protected int maxRentDays;
 
     public Client(String firstName, String lastName, String discriminator, int maxBooks, int maxRentDays) {
         this.id = UUID.randomUUID();
+        this.firstName = firstName;
+        this.lastName = lastName;
+        this.discriminator = discriminator;
+        this.maxBooks = maxBooks;
+        this.maxRentDays = maxRentDays;
+    }
+
+    public Client(UUID id, String firstName, String lastName, String discriminator, int maxBooks, int maxRentDays) {
+        this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.discriminator = discriminator;
@@ -57,6 +66,10 @@ public class Client {
 
     public int getMaxRentDays() {
         return maxRentDays;
+    }
+
+    public UUID getId() {
+        return id;
     }
 
     @Override

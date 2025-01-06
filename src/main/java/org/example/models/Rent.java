@@ -30,12 +30,13 @@ public class Rent {
 
     private float fee;
 
-    public Rent(UUID clientId, UUID bookId, LocalDate beginDate, LocalDate endDate) throws TooManyException {
+    public Rent(UUID clientId, float fee, LocalDate beginDate, LocalDate endDate, UUID bookId) {
+        this.rentId = UUID.randomUUID();
         this.clientId = clientId;
         this.bookId = bookId;
         this.beginDate = beginDate;
         this.endDate = endDate;
-        this.rentId = UUID.randomUUID();
+        this.fee = fee;
     }
 
     public void calculateFee(Client client) {
