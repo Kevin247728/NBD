@@ -13,7 +13,7 @@ import java.util.UUID;
 public class Student extends Client {
 
     public Student(UUID id, String firstName, String lastName, String discriminator, int maxBooks, int maxRentDays) {
-        super(id, firstName, lastName, "Student", 5, 30);
+        super(id, firstName, lastName, discriminator, maxBooks, maxRentDays);
     }
 
     @Override

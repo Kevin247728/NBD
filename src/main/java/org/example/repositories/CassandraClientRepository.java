@@ -25,7 +25,7 @@ public class CassandraClientRepository implements ClientRepository {
     }
 
     public void createNonStudent(UUID id, float additionalFee, String firstName, String lastName, String discriminator, int maxBooks, int maxRentDays) {
-        Client client = new NonStudent(id, additionalFee, firstName, lastName, discriminator, maxBooks, maxRentDays);
+        Client client = new NonStudent(id, discriminator, additionalFee, firstName, lastName, maxBooks, maxRentDays);
         clientDao.create(client);
     }
 

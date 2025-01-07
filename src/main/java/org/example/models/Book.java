@@ -21,10 +21,10 @@ public class Book {
     @CqlName("is_rented")
     private boolean isRented;
 
-    public Book(String title, boolean isRented) {
+    public Book(UUID id, String title, boolean isRented) {
         this.title = title;
         this.isRented = isRented;
-        this.id = UUID.randomUUID();
+        this.id = id;
     }
 
     public String getTitle() {
@@ -32,6 +32,10 @@ public class Book {
     }
 
     public void setTitle(String title) {this.title = title;}
+
+    public UUID getId() {
+        return id;
+    }
 
     public boolean isRented() {
         return isRented;

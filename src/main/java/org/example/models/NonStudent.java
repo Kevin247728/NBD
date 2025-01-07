@@ -15,7 +15,7 @@ public class NonStudent extends Client {
     @CqlName("additional_fee")
     private float additionalFee;
 
-    public NonStudent(UUID id, float additionalFee, String firstName, String lastName, String discriminator, int maxBooks, int maxRentDays) {
+    public NonStudent(UUID id, String discriminator, float additionalFee, String firstName, String lastName, int maxBooks, int maxRentDays) {
         super(id, firstName, lastName, discriminator, maxBooks, maxRentDays);
         this.additionalFee = additionalFee;
     }

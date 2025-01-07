@@ -35,10 +35,10 @@ public class ClientQueryProvider {
                         NonStudent nonStudent = (NonStudent) client;
                         yield session.prepare(nonStudentHelper.insert().build()).bind()
                                 .setUuid(ClientConsts.ID, nonStudent.getId())
+                                .setString(ClientConsts.DISCRIMINATOR, nonStudent.getDiscriminator())
                                 .setFloat(ClientConsts.ADDITIONAL_FEE, nonStudent.getAdditionalFee())
                                 .setString(ClientConsts.FIRST_NAME, nonStudent.getFirstName())
                                 .setString(ClientConsts.LAST_NAME, nonStudent.getLastName())
-                                .setString(ClientConsts.DISCRIMINATOR, nonStudent.getDiscriminator())
                                 .setInt(ClientConsts.MAX_BOOKS, nonStudent.getMaxBooks())
                                 .setInt(ClientConsts.MAX_RENT_DAYS, nonStudent.getMaxRentDays());
                     }
@@ -64,13 +64,13 @@ public class ClientQueryProvider {
                         NonStudent nonStudent = (NonStudent) client;
                         yield session.prepare(nonStudentHelper.deleteByPrimaryKey().build()).bind()
                                 .setUuid(ClientConsts.ID, nonStudent.getId())
-                                .setString(ClientConsts.DISCRIMINATOR, nonStudent.getDiscriminator());
+                                .setString("discriminator", nonStudent.getDiscriminator());
                     }
                     case "Student" -> {
                         Student student = (Student) client;
                         yield session.prepare(studentHelper.deleteByPrimaryKey().build()).bind()
                                 .setUuid(ClientConsts.ID, student.getId())
-                                .setString(ClientConsts.DISCRIMINATOR, student.getDiscriminator());
+                                .setString("discriminator", student.getDiscriminator());
                     }
                     default -> throw new IllegalArgumentException("Unknown discriminator type: " + client.getDiscriminator());
                 });
@@ -140,15 +140,15 @@ public class ClientQueryProvider {
                         NonStudent nonStudent = (NonStudent) client;
                         yield session.prepare(nonStudentHelper.updateByPrimaryKey().build()).bind()
                                 .setUuid(ClientConsts.ID, nonStudent.getId())
+                                .setString(ClientConsts.DISCRIMINATOR, nonStudent.getDiscriminator())
                                 .setFloat(ClientConsts.ADDITIONAL_FEE, nonStudent.getAdditionalFee())
                                 .setString(ClientConsts.FIRST_NAME, nonStudent.getFirstName())
                                 .setString(ClientConsts.LAST_NAME, nonStudent.getLastName())
-                                .setString(ClientConsts.DISCRIMINATOR, nonStudent.getDiscriminator())
                                 .setInt(ClientConsts.MAX_BOOKS, nonStudent.getMaxBooks())
                                 .setInt(ClientConsts.MAX_RENT_DAYS, nonStudent.getMaxRentDays());
 
                     }
-                    case "person" -> {
+                    case "Student" -> {
                         Student student = (Student) client;
                         yield session.prepare(studentHelper.updateByPrimaryKey().build()).bind()
                                 .setUuid("id", student.getId())
@@ -165,10 +165,10 @@ public class ClientQueryProvider {
     private NonStudent getNonStudent(Row nonStudent) {
         return new NonStudent(
                 nonStudent.getUuid(ClientConsts.ID),
+                nonStudent.getString(ClientConsts.DISCRIMINATOR),
                 nonStudent.getFloat(ClientConsts.ADDITIONAL_FEE),
                 nonStudent.getString(ClientConsts.FIRST_NAME),
                 nonStudent.getString(ClientConsts.LAST_NAME),
-                nonStudent.getString(ClientConsts.DISCRIMINATOR),
                 nonStudent.getInt(ClientConsts.MAX_BOOKS),
                 nonStudent.getInt(ClientConsts.MAX_RENT_DAYS)
         );

@@ -6,7 +6,7 @@ import java.util.UUID;
 public interface BookRepository {
     Book findById(UUID id);
     List<Book> findAll();
-    void create(Book book);
-    boolean delete(Book book);
-    boolean update(Book book);
+    void create(UUID id, String title, boolean isRented);
+    Book delete(UUID id);
+    void update(Book book);
 }
