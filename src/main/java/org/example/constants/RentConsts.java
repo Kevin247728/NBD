@@ -9,5 +9,6 @@ public class RentConsts {
     public static final CqlIdentifier BEGIN_DATE = CqlIdentifier.fromCql("begin_date");
     public static final CqlIdentifier END_DATE = CqlIdentifier.fromCql("end_date");
     public static final CqlIdentifier FEE = CqlIdentifier.fromCql("fee");
-    public static final CqlIdentifier RENTS = CqlIdentifier.fromCql("rents");
+    public static final CqlIdentifier RENTS_BY_CLIENT = CqlIdentifier.fromCql("rents_by_client");
+    public static final CqlIdentifier RENTS_BY_BOOK = CqlIdentifier.fromCql("rents_by_book");
 }

@@ -53,7 +53,7 @@ public class RentManager {
 
         UUID rentId = UUID.randomUUID();
         rentRepository.create(rentId, clientId, fee, beginDate, endDate, bookId);
-        Rent rent = rentRepository.findById(rentId);
+        Rent rent = rentRepository.findById(rentId, book.getId(), beginDate);
         rent.calculateFee(client);
         rentRepository.update(rent);
 
@@ -62,18 +62,18 @@ public class RentManager {
         return rent;
     }
 
-    public Rent getRentById(UUID rentId) {
-        return rentRepository.findById(rentId);
+    public Rent getRentById(UUID rentId, UUID bookId, LocalDate beginDate) {
+        return rentRepository.findById(rentId, bookId, beginDate);
     }
 
-    public Rent removeRent(UUID rentId) {
-        Rent rent = rentRepository.findById(rentId);
+    public Rent removeRent(UUID rentId, UUID bookId, LocalDate beginDate) {
+        Rent rent = rentRepository.findById(rentId, bookId, beginDate);
 
         if (rent == null) {
             throw new IllegalArgumentException("Rent not found!");
         }
 
-        rentRepository.delete(rentId);
+        rentRepository.delete(rentId, bookId, beginDate);
 
         Book book = bookRepository.findById(rent.getBookId());
         if (book != null) {

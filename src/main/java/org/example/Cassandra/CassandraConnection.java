@@ -19,7 +19,7 @@ public class CassandraConnection {
                     .withConfigLoader(DriverConfigLoader.programmaticBuilder()
                             .withDuration(DefaultDriverOption.METADATA_SCHEMA_REQUEST_TIMEOUT, Duration.ofMillis(60000))
                             .withDuration(DefaultDriverOption.CONNECTION_INIT_QUERY_TIMEOUT, Duration.ofMillis(60000))
-                            .withDuration(DefaultDriverOption.REQUEST_TIMEOUT, Duration.ofMillis(15000))
+                            .withDuration(DefaultDriverOption.REQUEST_TIMEOUT, Duration.ofMillis(60000))
                             .build())
                     //.withKeyspace(CqlIdentifier.fromCql("rent_a_book"))
                     .withAuthCredentials("nbd", "nbd")
@@ -45,8 +45,7 @@ public class CassandraConnection {
             }
             this.createClientTable();
             this.createBooksTable();
-            this.createRentsTable();
-            this.createClientIdIndex();
+            this.createRentsTables();
         } catch (Exception e) {
             if (session != null) {
                 session.close();
@@ -109,29 +108,31 @@ public class CassandraConnection {
         }
     }
 
-    public void createRentsTable() {
+    public void createRentsTables() {
         if (session != null) {
             session.execute("""
-                CREATE TABLE IF NOT EXISTS rent_a_book.rents (
-                    client_id UUID,
-                    rent_id UUID,
-                    begin_date date,
-                    end_date date,
-                    book_id UUID,
-                    fee float,
-                    PRIMARY KEY ((rent_id), begin_date, end_date)
-                ) WITH CLUSTERING ORDER BY (begin_date ASC, end_date ASC);
-                """);
-        } else {
-            throw new IllegalStateException("Session has not been initialized.");
-        }
-    }
+            CREATE TABLE IF NOT EXISTS rent_a_book.rents_by_client (
+                client_id UUID,
+                rent_id UUID,
+                begin_date DATE,
+                end_date DATE,
+                book_id UUID,
+                fee FLOAT,
+                PRIMARY KEY (client_id, begin_date, rent_id)
+            ) WITH CLUSTERING ORDER BY (begin_date DESC);
+            """);
 
-    public void createClientIdIndex() {
-        if (session != null) {
             session.execute("""
-            CREATE INDEX IF NOT EXISTS idx_client_id ON rent_a_book.rents(client_id);
-        """);
+            CREATE TABLE IF NOT EXISTS rent_a_book.rents_by_book (
+                book_id UUID,
+                rent_id UUID,
+                client_id UUID,
+                begin_date DATE,
+                end_date DATE,
+                fee FLOAT,
+                PRIMARY KEY (book_id, begin_date, rent_id)
+            ) WITH CLUSTERING ORDER BY (begin_date DESC);
+            """);
         } else {
             throw new IllegalStateException("Session has not been initialized.");
         }

@@ -5,27 +5,16 @@ import com.datastax.oss.driver.api.mapper.entity.naming.GetterStyle;
 import java.time.LocalDate;
 import java.util.UUID;
 
-@Entity(defaultKeyspace = "rent_a_book")
-@CqlName("rents")
-@PropertyStrategy(mutable = false, getterStyle = GetterStyle.JAVABEANS)
 public class Rent {
 
-    @ClusteringColumn(0)
-    @CqlName("begin_date")
     private LocalDate beginDate;
 
-    @ClusteringColumn(1)
-    @CqlName("end_date")
     private LocalDate endDate;
 
-    @PartitionKey
-    @CqlName("rent_id")
     private UUID rentId;
 
-    @CqlName("client_id")
     private UUID clientId;
 
-    @CqlName("book_id")
     private UUID bookId;
 
     private float fee;

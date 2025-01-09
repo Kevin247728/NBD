@@ -23,12 +23,12 @@ public class CassandraRentRepository implements RentRepository {
         return rentDao.create(rent);
     }
 
-    public Rent findById(UUID rentId) {
-        return rentDao.findById(rentId);
+    public Rent findById(UUID rentId, UUID bookId, LocalDate beginDate) {
+        return rentDao.findById(rentId, bookId, beginDate);
     }
 
-    public Rent delete(UUID rentId) {
-        Rent rent = rentDao.findById(rentId);
+    public Rent delete(UUID rentId, UUID bookId, LocalDate beginDate) {
+        Rent rent = rentDao.findById(rentId, bookId, beginDate);
         rentDao.delete(rent);
         return rent;
     }

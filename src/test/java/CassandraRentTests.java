@@ -43,7 +43,8 @@ public class CassandraRentTests {
 
     @AfterEach
     public void tearDown() {
-        session.execute("TRUNCATE rent_a_book.rents;");
+        session.execute("TRUNCATE rent_a_book.rents_by_client;");
+        session.execute("TRUNCATE rent_a_book.rents_by_book;");
         session.execute("TRUNCATE rent_a_book.books;");
         session.execute("TRUNCATE rent_a_book.clients;");
     }
@@ -124,7 +125,7 @@ public class CassandraRentTests {
 
         assertNotNull(rent);
 
-        rentManager.removeRent(rent.getRentId());
+        rentManager.removeRent(rent.getRentId(), book.getId(), beginDate);
 
         assertFalse(bookManager.getBookById(book.getId()).isRented());
     }
