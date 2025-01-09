@@ -13,8 +13,8 @@ import org.example.models.NonStudent;
 import org.example.models.Student;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
-
 import static com.datastax.oss.driver.api.querybuilder.QueryBuilder.literal;
 
 public class ClientQueryProvider {
@@ -28,7 +28,7 @@ public class ClientQueryProvider {
         this.nonStudentHelper = nonStudentHelper;
     }
 
-    public void create(Client client) {
+    public Client create(Client client) {
         session.execute(
                 switch (client.getDiscriminator()) {
                     case "NonStudent" -> {
@@ -55,9 +55,11 @@ public class ClientQueryProvider {
                     default -> throw new IllegalArgumentException("Unknown discriminator type: " + client.getDiscriminator());
                 }
         );
+
+        return client;
     }
 
-    public void delete(Client client) {
+    public Client delete(Client client) {
         session.execute(
                 switch (client.getDiscriminator()) {
                     case "NonStudent" -> {
@@ -74,18 +76,24 @@ public class ClientQueryProvider {
                     }
                     default -> throw new IllegalArgumentException("Unknown discriminator type: " + client.getDiscriminator());
                 });
+        return client;
     }
 
-    public Client findById(UUID id) {
+    public Optional<Client> findById(UUID id) {
         Select selectClient = QueryBuilder
                 .selectFrom(ClientConsts.CLIENTS)
                 .all()
                 .where(Relation.column(ClientConsts.ID).isEqualTo(literal(id)));
         Row row = session.execute(selectClient.build()).one();
+
+        if (row == null) {
+            return Optional.empty();
+        }
+
         String discriminator = row.getString(ClientConsts.DISCRIMINATOR);
         return switch (discriminator) {
-            case "NonStudent" -> getNonStudent(row);
-            case "Student" -> getStudent(row);
+            case "NonStudent" -> Optional.of(getNonStudent(row));
+            case "Student" ->  Optional.of(getStudent(row));
             default -> throw new IllegalArgumentException("Unknown discriminator type: " + discriminator);
         };
     }

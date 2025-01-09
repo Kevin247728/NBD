@@ -12,12 +12,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CassandraBookTests {
 
     private static CqlSession session;
-    private CassandraConnection cassandraConnection;
     private BookManager bookManager;
 
     @BeforeAll
     public void setUp() {
-        cassandraConnection = new CassandraConnection();
+        CassandraConnection cassandraConnection = new CassandraConnection();
         session = cassandraConnection.getSession();
 
         CassandraBookRepository bookRepository = new CassandraBookRepository(session);

@@ -9,32 +9,33 @@ import org.example.models.Student;
 import org.example.providers.ClientQueryProvider;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Dao
 public interface ClientDao {
 
-    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
     @QueryProvider(providerClass = ClientQueryProvider.class, entityHelpers = {Student.class, NonStudent.class})
-    Client findById(UUID id);
+    Optional<Client> findById(UUID id);
 
     @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
     @QueryProvider(providerClass = ClientQueryProvider.class, entityHelpers = {Student.class, NonStudent.class})
-    void create(Client client);
+    Client create(Client client);
 
     @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
     @QueryProvider(providerClass = ClientQueryProvider.class, entityHelpers = {Student.class, NonStudent.class})
-    void delete(Client client);
+    Client delete(Client client);
 
-    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
     @QueryProvider(providerClass = ClientQueryProvider.class, entityHelpers = {Student.class, NonStudent.class})
     List<Client> getAllClients();
 
-    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
     @QueryProvider(providerClass = ClientQueryProvider.class, entityHelpers = {Student.class, NonStudent.class})
     List<Client> getAllNonStudents();
 
-    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
     @QueryProvider(providerClass = ClientQueryProvider.class, entityHelpers = {Student.class, NonStudent.class})
     List<Client> getAllStudents();
 

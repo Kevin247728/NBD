@@ -24,6 +24,7 @@ public class CassandraConnection {
                     //.withKeyspace(CqlIdentifier.fromCql("rent_a_book"))
                     .withAuthCredentials("nbd", "nbd")
                     .build();
+            dropKeyspace();
             if (session.getKeyspace().isEmpty()) {
                 this.createKeyspace();
                 if (session != null) {
@@ -44,6 +45,8 @@ public class CassandraConnection {
             }
             this.createClientTable();
             this.createBooksTable();
+            this.createRentsTable();
+            this.createClientIdIndex();
         } catch (Exception e) {
             if (session != null) {
                 session.close();
@@ -89,7 +92,7 @@ public class CassandraConnection {
                     CREATE TABLE IF NOT EXISTS rent_a_book.books (
                         id UUID,
                         title text,
-                        is_rented boolean,
+                        rented boolean,
                         PRIMARY KEY (id)
                     );
                     """);
@@ -106,6 +109,33 @@ public class CassandraConnection {
         }
     }
 
+    public void createRentsTable() {
+        if (session != null) {
+            session.execute("""
+                CREATE TABLE IF NOT EXISTS rent_a_book.rents (
+                    client_id UUID,
+                    rent_id UUID,
+                    begin_date date,
+                    end_date date,
+                    book_id UUID,
+                    fee float,
+                    PRIMARY KEY ((rent_id), begin_date, end_date)
+                ) WITH CLUSTERING ORDER BY (begin_date ASC, end_date ASC);
+                """);
+        } else {
+            throw new IllegalStateException("Session has not been initialized.");
+        }
+    }
+
+    public void createClientIdIndex() {
+        if (session != null) {
+            session.execute("""
+            CREATE INDEX IF NOT EXISTS idx_client_id ON rent_a_book.rents(client_id);
+        """);
+        } else {
+            throw new IllegalStateException("Session has not been initialized.");
+        }
+    }
 
     public CqlSession getSession() {
         return session;

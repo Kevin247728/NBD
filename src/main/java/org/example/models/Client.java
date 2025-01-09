@@ -2,7 +2,6 @@ package org.example.models;
 
 import com.datastax.oss.driver.api.mapper.annotations.*;
 import com.datastax.oss.driver.api.mapper.entity.naming.GetterStyle;
-
 import java.util.UUID;
 
 @Entity(defaultKeyspace = "rent_a_book")

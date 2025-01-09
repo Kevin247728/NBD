@@ -2,7 +2,6 @@ package org.example.managers;
 
 import org.example.models.Book;
 import org.example.repositories.CassandraBookRepository;
-
 import java.util.List;
 import java.util.UUID;
 
@@ -14,9 +13,9 @@ public class BookManager {
         this.bookRepository = bookRepository;
     }
 
-    public void createBook(String title, boolean isRented) {
+    public Book createBook(String title, boolean isRented) {
         UUID id = UUID.randomUUID();
-        bookRepository.create(id, title, isRented);
+        return bookRepository.create(id, title, isRented);
     }
 
     public Book getBookById(UUID id) {

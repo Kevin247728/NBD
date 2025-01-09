@@ -2,7 +2,6 @@ package org.example.models;
 
 import com.datastax.oss.driver.api.mapper.annotations.*;
 import com.datastax.oss.driver.api.mapper.entity.naming.GetterStyle;
-import org.example.exceptions.TooManyException;
 import java.time.LocalDate;
 import java.util.UUID;
 
@@ -11,17 +10,18 @@ import java.util.UUID;
 @PropertyStrategy(mutable = false, getterStyle = GetterStyle.JAVABEANS)
 public class Rent {
 
+    @ClusteringColumn(0)
     @CqlName("begin_date")
     private LocalDate beginDate;
 
+    @ClusteringColumn(1)
     @CqlName("end_date")
     private LocalDate endDate;
 
-    @ClusteringColumn
+    @PartitionKey
     @CqlName("rent_id")
     private UUID rentId;
 
-    @PartitionKey
     @CqlName("client_id")
     private UUID clientId;
 
@@ -30,8 +30,8 @@ public class Rent {
 
     private float fee;
 
-    public Rent(UUID clientId, float fee, LocalDate beginDate, LocalDate endDate, UUID bookId) {
-        this.rentId = UUID.randomUUID();
+    public Rent(UUID rentId, LocalDate beginDate, LocalDate endDate, float fee, UUID clientId, UUID bookId) {
+        this.rentId = rentId;
         this.clientId = clientId;
         this.bookId = bookId;
         this.beginDate = beginDate;
@@ -41,7 +41,7 @@ public class Rent {
 
     public void calculateFee(Client client) {
         if (client instanceof NonStudent) {
-            this.fee = ((NonStudent) client).getAdditionalFee();
+            this.fee += ((NonStudent) client).getAdditionalFee();
         } else {
             this.fee = 0;
         }
@@ -69,6 +69,10 @@ public class Rent {
 
     public UUID getBookId() {
         return bookId;
+    }
+
+    public UUID getRentId() {
+        return rentId;
     }
 
     public void setEndDate(LocalDate endDate) {

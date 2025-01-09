@@ -8,6 +8,7 @@ import org.example.models.Client;
 import org.example.models.NonStudent;
 import org.example.models.Student;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public class CassandraClientRepository implements ClientRepository {
@@ -19,22 +20,26 @@ public class CassandraClientRepository implements ClientRepository {
         this.clientDao = clientMapper.clientDao();
     }
 
-    public void createStudent(UUID id, String firstName, String lastName, String discriminator, int maxBooks, int maxRentDays) {
+    public Client createStudent(UUID id, String firstName, String lastName, String discriminator, int maxBooks, int maxRentDays) {
         Client client = new Student(id, firstName, lastName, discriminator, maxBooks, maxRentDays);
-        clientDao.create(client);
+        return clientDao.create(client);
     }
 
-    public void createNonStudent(UUID id, float additionalFee, String firstName, String lastName, String discriminator, int maxBooks, int maxRentDays) {
+    public Client createNonStudent(UUID id, float additionalFee, String firstName, String lastName, String discriminator, int maxBooks, int maxRentDays) {
         Client client = new NonStudent(id, discriminator, additionalFee, firstName, lastName, maxBooks, maxRentDays);
-        clientDao.create(client);
+        return clientDao.create(client);
     }
 
-    public Client findById(UUID id) {
+    public Optional<Client> findById(UUID id) {
         return clientDao.findById(id);
     }
 
     public Client delete(UUID id) {
-        Client client = clientDao.findById(id);
+        Optional<Client> clientOptional = clientDao.findById(id);
+        if (clientOptional.isEmpty()) {
+            throw new IllegalArgumentException("Client with this id not found.");
+        }
+        Client client = clientOptional.get();
         clientDao.delete(client);
         return client;
     }

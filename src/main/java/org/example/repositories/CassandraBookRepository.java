@@ -18,9 +18,9 @@ public class CassandraBookRepository implements BookRepository {
         this.bookDao = bookMapper.bookDao();
     }
 
-    public void create(UUID id, String title, boolean isRented) {
+    public Book create(UUID id, String title, boolean isRented) {
         Book book = new Book(id, title, isRented);
-        bookDao.create(book);
+        return bookDao.create(book);
     }
 
     public Book findById(UUID id) {

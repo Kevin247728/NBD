@@ -8,6 +8,7 @@ import org.example.repositories.CassandraClientRepository;
 import org.junit.jupiter.api.*;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -16,12 +17,11 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CassandraClientTests {
 
     private static CqlSession session;
-    private CassandraConnection cassandraConnection;
     private ClientManager clientManager;
 
     @BeforeAll
     public void setUp() {
-        cassandraConnection = new CassandraConnection();
+        CassandraConnection cassandraConnection = new CassandraConnection();
         session = cassandraConnection.getSession();
 
         CassandraClientRepository repository = new CassandraClientRepository(session);
@@ -100,7 +100,12 @@ public class CassandraClientTests {
         student.setFirstName("Johnny");
         clientManager.updateClientInfo(student);
 
-        Client updatedClient = clientManager.getClientById(clientId);
+        Optional<Client> updatedClientOptional = clientManager.getClientById(clientId);
+        if (updatedClientOptional.isEmpty()) {
+            throw new IllegalArgumentException("No object has been found.");
+        }
+
+        Client updatedClient = updatedClientOptional.get();
 
         assertNotNull(updatedClient);
         assertEquals("Johnny", updatedClient.getFirstName());
