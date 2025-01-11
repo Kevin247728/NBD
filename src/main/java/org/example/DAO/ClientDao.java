@@ -15,7 +15,7 @@ import java.util.UUID;
 @Dao
 public interface ClientDao {
 
-    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
     @QueryProvider(providerClass = ClientQueryProvider.class, entityHelpers = {Student.class, NonStudent.class})
     Optional<Client> findById(UUID id);
 
@@ -27,15 +27,15 @@ public interface ClientDao {
     @QueryProvider(providerClass = ClientQueryProvider.class, entityHelpers = {Student.class, NonStudent.class})
     Client delete(Client client);
 
-    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
     @QueryProvider(providerClass = ClientQueryProvider.class, entityHelpers = {Student.class, NonStudent.class})
     List<Client> getAllClients();
 
-    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
     @QueryProvider(providerClass = ClientQueryProvider.class, entityHelpers = {Student.class, NonStudent.class})
     List<Client> getAllNonStudents();
 
-    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
     @QueryProvider(providerClass = ClientQueryProvider.class, entityHelpers = {Student.class, NonStudent.class})
     List<Client> getAllStudents();
 

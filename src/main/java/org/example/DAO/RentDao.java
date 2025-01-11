@@ -12,7 +12,7 @@ import java.util.UUID;
 @Dao
 public interface RentDao {
 
-    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
     @QueryProvider(providerClass = RentQueryProvider.class)
     Rent findById(UUID rentId, UUID bookId, LocalDate beginDate);
 
@@ -24,7 +24,7 @@ public interface RentDao {
     @QueryProvider(providerClass = RentQueryProvider.class)
     void delete(Rent rent);
 
-    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
     @QueryProvider(providerClass = RentQueryProvider.class)
     List<Rent> getAllRentsForClient(UUID clientId);
 
@@ -32,11 +32,11 @@ public interface RentDao {
     @QueryProvider(providerClass = RentQueryProvider.class)
     void update(Rent rent);
 
-    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
     @QueryProvider(providerClass = RentQueryProvider.class)
     List<Rent> getAllRents();
 
-    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
     @QueryProvider(providerClass = RentQueryProvider.class)
     long countRentsByClientId(UUID clientId);
 }

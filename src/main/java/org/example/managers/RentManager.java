@@ -58,7 +58,7 @@ public class RentManager {
         rentRepository.update(rent);
 
         book.setRented(true);
-        bookRepository.update(book);
+        bookRepository.update(book); // mozna dodac jakiegos ifa (w query) zeby zabezpieczyc sytuacje wspolbiezne
         return rent;
     }
 

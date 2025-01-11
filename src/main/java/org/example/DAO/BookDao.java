@@ -11,7 +11,7 @@ import java.util.UUID;
 @Dao
 public interface BookDao {
 
-    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
     @QueryProvider(providerClass = BookQueryProvider.class, entityHelpers = {Book.class})
     Book findById(UUID id);
 
@@ -23,7 +23,7 @@ public interface BookDao {
     @QueryProvider(providerClass = BookQueryProvider.class, entityHelpers = {Book.class})
     void delete(Book book);
 
-    @StatementAttributes(consistencyLevel = "QUORUM", pageSize = 100)
+    @StatementAttributes(consistencyLevel = "ONE", pageSize = 100)
     @QueryProvider(providerClass = BookQueryProvider.class, entityHelpers = {Book.class})
     List<Book> getAllBooks();
 
